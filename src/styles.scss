@@ -1,4 +1,63 @@
-/* You can add global styles to this file, and also import other style files */
+// Global reset & base
+*, *::before, *::after { box-sizing: border-box; }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  background-color: #f4f5f7;
+  color: #333;
+}
+
+// CSS variables
+:root {
+  --primary: #3f51b5;
+  --primary-dark: #303f9f;
+  --accent: #e91e63;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --error: #f44336;
+  --info: #2196f3;
+  --border-radius: 8px;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+// Material overrides
+.mat-mdc-card {
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+.mat-mdc-table {
+  background: transparent;
+
+  .mat-mdc-header-cell {
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+    background: #fafafa;
+  }
+
+  .mat-mdc-cell {
+    font-size: 14px;
+  }
+
+  .mat-mdc-row:hover {
+    background: #f5f7ff !important;
+  }
+}
+
+// Utility classes
+.full-width { width: 100%; }
+.text-center { text-align: center; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+
+h1 { font-size: 24px; font-weight: 600; margin: 0; }
+h2 { font-size: 20px; font-weight: 500; }
+
+@media (max-width: 600px) {
+  .hide-xs { display: none !important; }
+}
+
