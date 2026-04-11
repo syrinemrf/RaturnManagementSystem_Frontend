@@ -7,7 +7,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import {
   Chart, ArcElement, Tooltip, Legend, DoughnutController,
@@ -28,7 +28,7 @@ Chart.register(ArcElement, Tooltip, Legend, DoughnutController, BarController, B
     CommonModule, RouterModule,
     MatCardModule, MatIconModule, MatTableModule,
     MatProgressSpinnerModule, MatButtonModule, MatDividerModule,
-    BaseChartDirective, StatusBadgeComponent
+    NgChartsModule, StatusBadgeComponent
   ],
   template: `
     <div class="dashboard-header">
