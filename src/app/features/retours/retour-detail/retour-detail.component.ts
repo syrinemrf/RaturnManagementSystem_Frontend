@@ -36,9 +36,8 @@ import { GraviteBadgeComponent } from '../../../shared/components/gravite-badge.
     </div>
 
     <div *ngIf="!loading() && retour()">
-      <!-- Header -->
       <div class="detail-header">
-        <button mat-icon-button routerLink="/retours">
+        <button mat-icon-button routerLink="/retours" class="back-btn">
           <mat-icon>arrow_back</mat-icon>
         </button>
         <div class="header-title">
@@ -53,7 +52,7 @@ import { GraviteBadgeComponent } from '../../../shared/components/gravite-badge.
       <!-- Info Card -->
       <mat-card class="info-card">
         <mat-card-header>
-          <mat-card-title>Informations Générales</mat-card-title>
+          <mat-card-title class="section-title">Informations Générales</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="info-grid">
@@ -149,34 +148,45 @@ import { GraviteBadgeComponent } from '../../../shared/components/gravite-badge.
     </div>
   `,
   styles: [`
-    .loading-center { display: flex; justify-content: center; padding: 48px; }
-    .detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-    .header-title { display: flex; align-items: center; gap: 12px; flex: 1; }
-    .header-title h1 { margin: 0; font-size: 24px; font-weight: 600; }
-    .info-card, .nc-card, .historique-card { margin-bottom: 16px; border-radius: 12px !important; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px 0; }
-    .info-item { display: flex; flex-direction: column; gap: 4px; }
-    .info-item label { font-size: 12px; color: #999; font-weight: 500; text-transform: uppercase; }
-    .info-item span { font-size: 15px; }
+    .loading-center { display: flex; justify-content: center; padding: 80px; }
+    .detail-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+    .back-btn { flex-shrink: 0; color: #64748b !important; }
+    .header-title { display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap; }
+    .header-title h1 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: #0f172a; }
+    .info-card, .nc-card, .historique-card { margin-bottom: 16px; }
+    .section-title { font-size: 14px !important; font-weight: 700 !important; color: #0f172a !important; text-transform: uppercase; letter-spacing: 0.06em !important; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 8px 0; }
+    .info-item { display: flex; flex-direction: column; gap: 5px; }
+    .info-item label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+    .info-item span { font-size: 14px; color: #0f172a; font-weight: 500; }
     .full-col { grid-column: 1 / -1; }
-    .nc-card mat-card-header { display: flex; justify-content: space-between; align-items: center; }
-    .nc-item { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+    .nc-card-header { display: flex; justify-content: space-between; align-items: center; }
+    .nc-item {
+      border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 10px;
+      transition: box-shadow 0.15s ease;
+      &:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+    }
     .nc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .nc-produit { font-weight: 600; }
-    .nc-description { margin: 4px 0; color: #555; }
-    .nc-date { margin: 0; font-size: 12px; color: #999; }
-    .empty-msg { display: flex; flex-direction: column; align-items: center; padding: 32px; color: #ccc; }
+    .nc-produit { font-weight: 700; font-size: 14px; color: #0f172a; }
+    .nc-description { margin: 4px 0; color: #475569; font-size: 13px; }
+    .nc-date { margin: 0; font-size: 11px; color: #94a3b8; }
+    .empty-msg { display: flex; flex-direction: column; align-items: center; padding: 32px; color: #cbd5e1; }
     .empty-msg mat-icon { font-size: 48px; height: 48px; width: 48px; }
-    .timeline { position: relative; padding-left: 24px; }
-    .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e0e0e0; }
-    .timeline-item { position: relative; margin-bottom: 20px; }
-    .timeline-dot { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #3f51b5; border: 2px solid white; box-shadow: 0 0 0 2px #3f51b5; }
-    .timeline-action { margin: 0; font-weight: 500; font-size: 14px; }
-    .timeline-meta { display: flex; gap: 16px; margin: 4px 0 0; font-size: 12px; color: #999; align-items: center; }
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--primary) 0%, #e2e8f0 100%); }
+    .timeline-item { position: relative; margin-bottom: 24px; }
+    .timeline-dot {
+      position: absolute; left: -22px; top: 3px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      border: 2px solid white; box-shadow: 0 0 0 2px #e0e7ff;
+    }
+    .timeline-action { margin: 0; font-weight: 600; font-size: 14px; color: #0f172a; }
+    .timeline-meta { display: flex; gap: 16px; margin: 4px 0 0; font-size: 12px; color: #94a3b8; align-items: center; }
     .timeline-meta span { display: flex; align-items: center; gap: 4px; }
-    .timeline-states { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; font-size: 12px; font-family: monospace; }
-    .old-state { color: #f44336; }
-    .new-state { color: #4caf50; }
+    .timeline-states { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; }
+    .old-state { font-size: 11px; background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .new-state { font-size: 11px; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
     @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
   `]
 })

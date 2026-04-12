@@ -23,10 +23,10 @@ import { EtatTraitement } from '../../core/models/retour.model';
     MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatChipsModule
   ],
   template: `
-    <div class="page-header">
+    <div class="page-header animate-fade-up">
       <div>
-        <h1>Historique des Activités</h1>
-        <p class="subtitle">Chronologie des changements d'état</p>
+        <h1 class="page-title">Historique des Activités</h1>
+        <p class="page-subtitle">Chronologie des changements d'état</p>
       </div>
       <button mat-stroked-button (click)="load()">
         <mat-icon>refresh</mat-icon> Actualiser
@@ -62,9 +62,9 @@ import { EtatTraitement } from '../../core/models/retour.model';
                 <span class="date-exact">{{ item.date | date:'dd/MM/yyyy à HH:mm' }}</span>
               </div>
               <div class="state-transition" *ngIf="item.ancienEtat && item.nouvelEtat">
-                <mat-chip style="background:#ffebee;color:#c62828;font-size:11px;height:24px;">{{ item.ancienEtat }}</mat-chip>
-                <mat-icon style="font-size:16px;color:#999;">arrow_forward</mat-icon>
-                <mat-chip style="background:#e8f5e9;color:#2e7d32;font-size:11px;height:24px;">{{ item.nouvelEtat }}</mat-chip>
+                <span class="state-old">{{ item.ancienEtat }}</span>
+                <mat-icon style="font-size:14px;height:14px;width:14px;color:#94a3b8;">arrow_forward</mat-icon>
+                <span class="state-new">{{ item.nouvelEtat }}</span>
               </div>
               <a mat-button color="primary" [routerLink]="['/retours', item.retourId]" style="padding:0;min-width:auto;font-size:12px;">
                 Voir retour #{{ item.retourId }} →
@@ -76,34 +76,36 @@ import { EtatTraitement } from '../../core/models/retour.model';
     </mat-card>
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-    .page-header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-    .subtitle { color: #666; margin: 4px 0 0; }
-    .loading-center { display: flex; justify-content: center; padding: 48px; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 48px; color: #ccc; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .loading-center { display: flex; justify-content: center; padding: 80px; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
     .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
-    .timeline { position: relative; padding-left: 48px; }
-    .timeline::before { content: ''; position: absolute; left: 16px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #3f51b5, #e0e0e0); }
+    .timeline { position: relative; padding-left: 52px; }
+    .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #6366f1 0%, #e2e8f0 100%); }
     .timeline-item { position: relative; margin-bottom: 28px; }
     .timeline-marker {
-      position: absolute;
-      left: -40px;
-      top: 2px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: absolute; left: -44px; top: 0;
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
-    .marker-icon { font-size: 16px; height: 16px; width: 16px; color: white; }
-    .timeline-content { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 16px; }
-    .timeline-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-    .action-text { font-weight: 600; font-size: 14px; }
-    .action-date { font-size: 12px; color: #999; }
-    .timeline-details { display: flex; gap: 16px; font-size: 12px; color: #666; margin-bottom: 8px; align-items: center; }
-    .state-transition { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .marker-icon { font-size: 18px; height: 18px; width: 18px; color: white; }
+    .timeline-content {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: box-shadow 0.15s ease;
+      &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    }
+    .timeline-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .action-text { font-weight: 600; font-size: 14px; color: #0f172a; }
+    .action-date { font-size: 11px; color: #94a3b8; font-weight: 500; white-space: nowrap; }
+    .timeline-details { display: flex; gap: 16px; font-size: 12px; color: #64748b; margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
+    .employee { display: flex; align-items: center; gap: 4px; }
+    .state-transition { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .state-old { font-size: 11px; background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .state-new { font-size: 11px; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    a[routerLink] { font-size: 12px; font-weight: 500; }
   `]
 })
 export class HistoriqueComponent implements OnInit {

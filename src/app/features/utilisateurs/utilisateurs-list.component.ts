@@ -103,10 +103,10 @@ export class UtilisateurFormDialogComponent {
     MatTooltipModule, MatChipsModule
   ],
   template: `
-    <div class="page-header">
+    <div class="page-header animate-fade-up">
       <div>
-        <h1>Gestion des Utilisateurs</h1>
-        <p class="subtitle">Administration des comptes</p>
+        <h1 class="page-title">Gestion des Utilisateurs</h1>
+        <p class="page-subtitle">Administration des comptes</p>
       </div>
       <button mat-raised-button color="primary" (click)="openForm(null)">
         <mat-icon>person_add</mat-icon> Nouvel Utilisateur
@@ -172,17 +172,14 @@ export class UtilisateurFormDialogComponent {
     </mat-card>
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-    .page-header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-    .subtitle { color: #666; margin: 4px 0 0; }
-    .filter-bar { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; padding: 16px 0 0; }
     .search-field { flex: 1; min-width: 200px; }
     .table-container { overflow-x: auto; }
     .full-width { width: 100%; }
-    .table-row:hover { background: #f5f5f5; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 48px; color: #ccc; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
     .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
-    .loading-center { display: flex; justify-content: center; padding: 48px; }
+    .loading-center { display: flex; justify-content: center; padding: 64px; }
   `]
 })
 export class UtilisateursListComponent implements OnInit {

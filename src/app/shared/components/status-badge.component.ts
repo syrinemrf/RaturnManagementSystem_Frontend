@@ -1,44 +1,47 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatChipsModule } from '@angular/material/chips';
 import { EtatTraitement } from '../../core/models/retour.model';
 
 @Component({
   selector: 'app-status-badge',
   standalone: true,
-  imports: [CommonModule, MatChipsModule],
+  imports: [CommonModule],
   template: `
-    <mat-chip [ngClass]="getClass()" [style.background-color]="getColor()" style="color: white; font-weight: 500; font-size: 12px;">
-      {{ getLabel() }}
-    </mat-chip>
-  `
+    <span class="status-pill" [style.background]="getConfig().bg" [style.color]="getConfig().color">
+      <span class="dot" [style.background]="getConfig().dot"></span>
+      {{ getConfig().label }}
+    </span>
+  `,
+  styles: [`
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px 3px 8px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  `]
 })
 export class StatusBadgeComponent {
   @Input() etat!: EtatTraitement;
 
-  getLabel(): string {
-    const labels: Record<string, string> = {
-      EN_ATTENTE: 'En Attente',
-      EN_COURS: 'En Cours',
-      VALIDE: 'Validé',
-      TRAITE: 'Traité',
-      REJETE: 'Rejeté'
+  getConfig(): { label: string; bg: string; color: string; dot: string } {
+    const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
+      EN_ATTENTE: { label: 'En Attente', bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
+      EN_COURS:   { label: 'En Cours',   bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
+      VALIDE:     { label: 'Validé',     bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
+      TRAITE:     { label: 'Traité',     bg: '#dcfce7', color: '#14532d', dot: '#22c55e' },
+      REJETE:     { label: 'Rejeté',     bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' }
     };
-    return labels[this.etat] || this.etat;
-  }
-
-  getColor(): string {
-    const colors: Record<string, string> = {
-      EN_ATTENTE: '#ff9800',
-      EN_COURS: '#2196f3',
-      VALIDE: '#009688',
-      TRAITE: '#4caf50',
-      REJETE: '#f44336'
-    };
-    return colors[this.etat] || '#9e9e9e';
-  }
-
-  getClass(): string {
-    return `status-${this.etat?.toLowerCase()?.replace('_', '-')}`;
+    return map[this.etat] || { label: this.etat, bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' };
   }
 }

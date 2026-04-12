@@ -109,10 +109,10 @@ export class NcFormDialogComponent {
     MatTooltipModule, GraviteBadgeComponent
   ],
   template: `
-    <div class="page-header">
+    <div class="page-header animate-fade-up">
       <div>
-        <h1>Non-Conformités</h1>
-        <p class="subtitle">Gestion des anomalies qualité</p>
+        <h1 class="page-title">Non-Conformités</h1>
+        <p class="page-page-subtitle">Gestion des anomalies qualité</p>
       </div>
       <button mat-raised-button color="primary" (click)="openForm(null)" *ngIf="authService.isQualite()">
         <mat-icon>add</mat-icon> Nouvelle NC
@@ -194,21 +194,15 @@ export class NcFormDialogComponent {
     </mat-card>
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-    .page-header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-    .subtitle { color: #666; margin: 4px 0 0; }
-    .filter-bar { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; padding: 16px 0 0; }
     .search-field { flex: 1; min-width: 200px; }
     .table-container { overflow-x: auto; }
     .full-width { width: 100%; }
-    .desc-cell { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .table-row:hover { background: #f5f5f5; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 48px; color: #ccc; }
+    .desc-cell { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
     .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
-    .loading-center { display: flex; justify-content: center; padding: 48px; }
-  `]
-})
-export class NonConformitesListComponent implements OnInit {
+    .loading-center { display: flex; justify-content: center; padding: 64
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 

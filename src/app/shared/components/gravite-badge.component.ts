@@ -1,38 +1,46 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatChipsModule } from '@angular/material/chips';
 import { Gravite } from '../../core/models/nonconformite.model';
 
 @Component({
   selector: 'app-gravite-badge',
   standalone: true,
-  imports: [CommonModule, MatChipsModule],
+  imports: [CommonModule],
   template: `
-    <mat-chip [style.background-color]="getColor()" style="color: white; font-weight: 500; font-size: 12px;">
-      {{ getLabel() }}
-    </mat-chip>
-  `
+    <span class="gravite-pill" [style.background]="getConfig().bg" [style.color]="getConfig().color">
+      <span class="dot" [style.background]="getConfig().dot"></span>
+      {{ getConfig().label }}
+    </span>
+  `,
+  styles: [`
+    .gravite-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px 3px 8px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  `]
 })
 export class GraviteBadgeComponent {
   @Input() gravite!: Gravite;
 
-  getLabel(): string {
-    const labels: Record<string, string> = {
-      FAIBLE: 'Faible',
-      MOYENNE: 'Moyenne',
-      HAUTE: 'Haute',
-      CRITIQUE: 'Critique'
+  getConfig(): { label: string; bg: string; color: string; dot: string } {
+    const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
+      FAIBLE:   { label: 'Faible',   bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
+      MOYENNE:  { label: 'Moyenne',  bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
+      HAUTE:    { label: 'Haute',    bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
+      CRITIQUE: { label: 'Critique', bg: '#fce7f3', color: '#9d174d', dot: '#ec4899' }
     };
-    return labels[this.gravite] || this.gravite;
-  }
-
-  getColor(): string {
-    const colors: Record<string, string> = {
-      FAIBLE: '#4caf50',
-      MOYENNE: '#ff9800',
-      HAUTE: '#f44336',
-      CRITIQUE: '#b71c1c'
-    };
-    return colors[this.gravite] || '#9e9e9e';
+    return map[this.gravite] || { label: this.gravite, bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' };
   }
 }

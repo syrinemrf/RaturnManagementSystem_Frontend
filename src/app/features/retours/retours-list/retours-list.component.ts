@@ -34,36 +34,36 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     MatTooltipModule, StatusBadgeComponent
   ],
   template: `
-    <div class="page-header">
+    <div class="page-header animate-fade-up">
       <div>
-        <h1>Retours Produits</h1>
-        <p class="subtitle">Gestion des retours clients</p>
+        <h1 class="page-title">Retours Produits</h1>
+        <p class="page-subtitle">Gestion et suivi des retours clients</p>
       </div>
       <button mat-raised-button color="primary" routerLink="/retours/nouveau" *ngIf="authService.isEmploye()">
         <mat-icon>add</mat-icon> Nouveau Retour
       </button>
     </div>
 
-    <mat-card>
+    <mat-card class="list-card">
       <mat-card-content>
         <!-- Filters -->
         <div class="filter-bar">
           <mat-form-field appearance="outline" class="search-field">
-            <mat-label>Rechercher par client</mat-label>
-            <input matInput [formControl]="searchControl" placeholder="Nom du client...">
+            <mat-label>Rechercher…</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Client, produit…">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="state-filter">
-            <mat-label>Filtrer par état</mat-label>
+            <mat-label>État</mat-label>
             <mat-select [formControl]="etatControl">
               <mat-option value="">Tous les états</mat-option>
               <mat-option *ngFor="let etat of etats" [value]="etat.value">{{ etat.label }}</mat-option>
             </mat-select>
           </mat-form-field>
 
-          <button mat-stroked-button (click)="resetFilters()">
-            <mat-icon>clear</mat-icon> Réinitialiser
+          <button mat-stroked-button (click)="resetFilters()" class="reset-btn">
+            <mat-icon>filter_alt_off</mat-icon> Réinitialiser
           </button>
         </div>
 
@@ -131,18 +131,19 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     </mat-card>
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-    .page-header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-    .subtitle { color: #666; margin: 4px 0 0; }
-    .filter-bar { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .list-card { }
+    .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; padding: 16px 0 0; }
     .search-field { flex: 1; min-width: 200px; }
-    .state-filter { min-width: 200px; }
+    .state-filter { min-width: 180px; }
+    .reset-btn { flex-shrink: 0; }
     .table-container { overflow-x: auto; }
     .full-width { width: 100%; }
-    .table-row:hover { background: #f5f5f5; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 48px; color: #ccc; }
-    .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
-    .loading-center { display: flex; justify-content: center; padding: 48px; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
+    .empty-state mat-icon { font-size: 56px; height: 56px; width: 56px; }
+    .empty-state p { margin: 12px 0 0; font-size: 15px; }
+    .loading-center { display: flex; justify-content: center; padding: 64px; }
+    td.mat-mdc-cell:last-child { padding-right: 8px !important; }
   `]
 })
 export class RetoursListComponent implements OnInit {
