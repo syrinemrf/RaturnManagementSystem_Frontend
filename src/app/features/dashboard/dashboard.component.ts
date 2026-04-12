@@ -17,9 +17,11 @@ import {
 
 import { DashboardService } from '../../core/services/dashboard.service';
 import { RetourService } from '../../core/services/retour.service';
+import { NonConformiteService } from '../../core/services/nonconformite.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardStats } from '../../core/models/dashboard.model';
 import { RetourProduit, EtatTraitement } from '../../core/models/retour.model';
+import { NonConformite } from '../../core/models/nonconformite.model';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController, BarController, BarElement, CategoryScale, LinearScale, Title);
@@ -44,6 +46,15 @@ interface KpiCard {
   badgeColor?: string;
 }
 
+interface ProductIssue {
+  name: string;
+  defauts: number;
+  nc: number;
+  total: number;
+  pct: number;
+  gravites: { critique: number; haute: number; moyenne: number; faible: number };
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -57,7 +68,7 @@ interface KpiCard {
     <div class="dash-header animate-fade-up">
       <div>
         <h1 class="page-title">Tableau de Bord</h1>
-        <p class="page-subtitle">{{ isEmploye ? 'Suivi de vos retours produits' : 'Vue d\\'ensemble du syst\u00e8me de gestion des retours' }}</p>
+        <p class="page-subtitle">{{ isEmploye ? 'Suivi de vos retours produits' : 'Vue d\\'ensemble — aide \u00e0 la d\u00e9cision qualit\u00e9' }}</p>
       </div>
       <div class="header-actions">
         <div class="refresh-info" *ngIf="!loading()">
@@ -121,8 +132,8 @@ interface KpiCard {
         </div>
       </div>
 
-      <!-- Charts -->
-      <div class="charts-grid">
+      <!-- Row: Donut + Cause chart + Product Issues -->
+      <div class="tri-grid">
         <mat-card class="chart-card animate-fade-up">
           <mat-card-header>
             <mat-card-title class="card-title">
@@ -130,7 +141,7 @@ interface KpiCard {
               R\u00e9partition par \u00c9tat
             </mat-card-title>
           </mat-card-header>
-          <mat-card-content class="chart-content">
+          <mat-card-content class="chart-content doughnut-wrap">
             <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" type="doughnut"></canvas>
           </mat-card-content>
         </mat-card>
@@ -139,38 +150,49 @@ interface KpiCard {
           <mat-card-header>
             <mat-card-title class="card-title">
               <mat-icon class="card-title-icon">analytics</mat-icon>
-              Analyse par Cause de Retour
+              Causes de Retour
             </mat-card-title>
           </mat-card-header>
           <mat-card-content class="chart-content cause-chart">
             <canvas baseChart [data]="causeData" [options]="causeOptions" type="bar"></canvas>
           </mat-card-content>
         </mat-card>
-      </div>
 
-      <!-- Top Defective Products -->
-      <mat-card class="defect-card animate-fade-up" *ngIf="topDefectProducts().length > 0">
-        <mat-card-header>
-          <mat-card-title class="card-title">
-            <mat-icon class="card-title-icon">precision_manufacturing</mat-icon>
-            Produits avec le plus de défauts de fabrication
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="defect-grid">
-            <div class="defect-item" *ngFor="let p of topDefectProducts(); let i = index">
-              <div class="defect-rank" [class.rank-1]="i === 0" [class.rank-2]="i === 1" [class.rank-3]="i === 2">{{ i + 1 }}</div>
-              <div class="defect-info">
-                <span class="defect-name">{{ p.name }}</span>
-                <span class="defect-bar-track">
-                  <span class="defect-bar-fill" [style.width.%]="p.pct"></span>
-                </span>
+        <mat-card class="product-issues-card animate-fade-up">
+          <mat-card-header>
+            <mat-card-title class="card-title">
+              <mat-icon class="card-title-icon">precision_manufacturing</mat-icon>
+              D\u00e9fauts &amp; NC par Produit
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="product-list" *ngIf="productIssues().length > 0">
+              <div class="product-row" *ngFor="let p of productIssues(); let i = index">
+                <div class="product-rank" [class.rank-1]="i===0" [class.rank-2]="i===1" [class.rank-3]="i===2">{{ i + 1 }}</div>
+                <div class="product-body">
+                  <div class="product-header-row">
+                    <span class="product-name">{{ p.name }}</span>
+                    <span class="product-total">{{ p.total }} probl\u00e8me{{ p.total > 1 ? 's' : '' }}</span>
+                  </div>
+                  <div class="product-bar-track">
+                    <span class="product-bar-fill" [style.width.%]="p.pct"></span>
+                  </div>
+                  <div class="product-tags">
+                    <span class="ptag ptag-defaut" *ngIf="p.defauts > 0">{{ p.defauts }} d\u00e9faut{{ p.defauts > 1 ? 's' : '' }}</span>
+                    <span class="ptag ptag-nc" *ngIf="p.nc > 0">{{ p.nc }} NC</span>
+                    <span class="ptag ptag-critique" *ngIf="p.gravites.critique > 0">{{ p.gravites.critique }} critique{{ p.gravites.critique > 1 ? 's' : '' }}</span>
+                    <span class="ptag ptag-haute" *ngIf="p.gravites.haute > 0">{{ p.gravites.haute }} haute{{ p.gravites.haute > 1 ? 's' : '' }}</span>
+                  </div>
+                </div>
               </div>
-              <span class="defect-count">{{ p.count }} retour{{ p.count > 1 ? 's' : '' }}</span>
             </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+            <div *ngIf="productIssues().length === 0" class="empty-act">
+              <mat-icon>verified</mat-icon>
+              <p>Aucun probl\u00e8me d\u00e9tect\u00e9</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
 
       <!-- Bottom Row -->
       <div class="bottom-grid">
@@ -350,7 +372,7 @@ interface KpiCard {
       mat-icon { font-size: 14px; height: 14px; width: 14px; }
     }
 
-    /* KPI Grid — clean flat cards */
+    /* KPI Grid */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .kpi-card {
       background: var(--surface); border: 1px solid var(--card-border);
@@ -378,9 +400,10 @@ interface KpiCard {
       font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
     }
 
-    /* Charts */
-    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    .chart-content { display: flex; justify-content: center; max-height: 280px; padding: 8px 0; }
+    /* Triple-column grid */
+    .tri-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .chart-content { display: flex; justify-content: center; padding: 8px 0; }
+    .doughnut-wrap { max-height: 280px; }
     .cause-chart { max-height: 320px; }
     .card-title {
       font-size: 15px !important; font-weight: 600 !important; color: var(--text-primary) !important;
@@ -390,6 +413,32 @@ interface KpiCard {
     .card-header-flex { display: flex; justify-content: space-between; align-items: center; }
     .view-all-btn { display: flex; align-items: center; gap: 4px; font-size: 13px !important; }
     .view-all-btn mat-icon { font-size: 16px; height: 16px; width: 16px; }
+
+    /* Product Issues */
+    .product-list { display: flex; flex-direction: column; gap: 14px; max-height: 300px; overflow-y: auto; }
+    .product-row { display: flex; gap: 10px; align-items: flex-start; }
+    .product-rank {
+      width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0; margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: var(--text-muted);
+      background: var(--surface-raised); border: 1px solid var(--border);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .product-rank.rank-1 { background: #ef4444; color: white; border-color: #ef4444; }
+    .product-rank.rank-2 { background: #f59e0b; color: white; border-color: #f59e0b; }
+    .product-rank.rank-3 { background: #3b82f6; color: white; border-color: #3b82f6; }
+    .product-body { flex: 1; min-width: 0; }
+    .product-header-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .product-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .product-total { font-size: 12px; font-weight: 700; color: var(--text-secondary); font-family: 'Plus Jakarta Sans', sans-serif; }
+    .product-bar-track { height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; margin-bottom: 5px; }
+    .product-bar-fill { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #ef4444, #f59e0b); transition: width 0.6s ease; }
+    .product-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ptag { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; }
+    .ptag-defaut { background: rgba(245,158,11,0.12); color: #d97706; }
+    .ptag-nc { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .ptag-critique { background: rgba(239,68,68,0.12); color: #dc2626; }
+    .ptag-haute { background: rgba(249,115,22,0.12); color: #ea580c; }
 
     /* Raison chip */
     .raison-chip {
@@ -428,26 +477,6 @@ interface KpiCard {
 
     /* Summary card (employee) */
     .summary-list { display: flex; flex-direction: column; }
-
-    /* Defect Products */
-    .defect-card { margin-bottom: 24px; }
-    .defect-grid { display: flex; flex-direction: column; gap: 12px; }
-    .defect-item { display: flex; align-items: center; gap: 14px; }
-    .defect-rank {
-      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 800; color: var(--text-muted);
-      background: var(--surface-raised); border: 1px solid var(--border);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .defect-rank.rank-1 { background: #0d9488; color: white; border-color: #0d9488; }
-    .defect-rank.rank-2 { background: #14b8a6; color: white; border-color: #14b8a6; }
-    .defect-rank.rank-3 { background: #2dd4bf; color: #0f766e; border-color: #2dd4bf; }
-    .defect-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .defect-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-    .defect-bar-track { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
-    .defect-bar-fill { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0d9488, #14b8a6); transition: width 0.6s ease; }
-    .defect-count { font-size: 13px; font-weight: 700; color: var(--text-secondary); white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif; }
     .summary-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 0; border-bottom: 1px solid var(--border);
@@ -456,9 +485,13 @@ interface KpiCard {
     .summary-label { font-size: 13px; color: var(--text-secondary); }
     .summary-value { font-size: 18px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 1200px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .tri-grid { grid-template-columns: 1fr 1fr; }
+      .product-issues-card { grid-column: 1 / -1; }
+    }
     @media (max-width: 768px) {
-      .charts-grid, .bottom-grid { grid-template-columns: 1fr; }
+      .tri-grid, .bottom-grid { grid-template-columns: 1fr; }
       .welcome-banner { flex-direction: column; text-align: center; }
     }
     @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }
@@ -467,6 +500,7 @@ interface KpiCard {
 export class DashboardComponent implements OnInit, OnDestroy {
   stats = signal<DashboardStats | null>(null);
   allRetours = signal<RetourProduit[]>([]);
+  allNc = signal<NonConformite[]>([]);
   loading = signal(true);
   isEmploye = false;
   userName = '';
@@ -533,18 +567,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
   });
 
-  topDefectProducts = computed(() => {
+  productIssues = computed<ProductIssue[]>(() => {
     const retours = this.allRetours();
-    const defects = retours.filter(r => r.raison === 'D\u00e9faut de fabrication');
-    if (defects.length === 0) return [];
-    const counts: Record<string, number> = {};
-    defects.forEach(r => { counts[r.produit] = (counts[r.produit] || 0) + 1; });
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-    const max = sorted[0][1];
-    return sorted.map(([name, count]) => ({ name, count, pct: Math.round((count / max) * 100) }));
+    const ncs = this.allNc();
+    const productMap: Record<string, ProductIssue> = {};
+
+    // Count defauts de fabrication retours per product
+    retours.filter(r => r.raison === 'D\u00e9faut de fabrication').forEach(r => {
+      if (!productMap[r.produit]) {
+        productMap[r.produit] = { name: r.produit, defauts: 0, nc: 0, total: 0, pct: 0, gravites: { critique: 0, haute: 0, moyenne: 0, faible: 0 } };
+      }
+      productMap[r.produit].defauts++;
+    });
+
+    // Count NCs per product with gravité breakdown
+    ncs.forEach(nc => {
+      if (!productMap[nc.produit]) {
+        productMap[nc.produit] = { name: nc.produit, defauts: 0, nc: 0, total: 0, pct: 0, gravites: { critique: 0, haute: 0, moyenne: 0, faible: 0 } };
+      }
+      productMap[nc.produit].nc++;
+      const g = nc.gravite?.toLowerCase() as 'critique' | 'haute' | 'moyenne' | 'faible';
+      if (g && productMap[nc.produit].gravites[g] !== undefined) {
+        productMap[nc.produit].gravites[g]++;
+      }
+    });
+
+    // calculate totals and sort
+    const items = Object.values(productMap);
+    items.forEach(p => p.total = p.defauts + p.nc);
+    items.sort((a, b) => b.total - a.total);
+    const top = items.slice(0, 6);
+    const max = top[0]?.total || 1;
+    top.forEach(p => p.pct = Math.round((p.total / max) * 100));
+    return top;
   });
 
-  // Charts
+  // Charts — distinct colors per state for clarity
   doughnutData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 6 }] };
   doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
     responsive: true, maintainAspectRatio: false, cutout: '65%',
@@ -561,9 +619,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   };
 
+  // Semantically distinct colors: amber=attente, blue=cours, teal=valid\u00e9, green=trait\u00e9, red=rejet\u00e9
+  private stateColors = ['#f59e0b', '#3b82f6', '#0d9488', '#22c55e', '#ef4444'];
+
   constructor(
     private dashboardService: DashboardService,
     private retourService: RetourService,
+    private ncService: NonConformiteService,
     private authService: AuthService
   ) {
     this.isEmploye = !this.authService.isQualite();
@@ -581,14 +643,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadData(): void {
     this.loading.set(true);
+
+    // Always fetch retours and NC
+    this.retourService.getAll().subscribe({
+      next: (retours) => {
+        this.allRetours.set(retours);
+        if (this.isEmploye) {
+          this.updateDoughnutFromRetours(retours);
+        }
+        this.updateCauseChart(retours);
+      },
+      error: () => {}
+    });
+
+    // Fetch NC for the product issues panel
+    if (!this.isEmploye) {
+      this.ncService.getAll().subscribe({
+        next: (ncs) => this.allNc.set(ncs),
+        error: () => {}
+      });
+    }
+
     if (this.isEmploye) {
       this.retourService.getAll().subscribe({
-        next: (retours) => {
-          this.allRetours.set(retours);
-          this.updateDoughnutFromRetours(retours);
-          this.updateCauseChart(retours);
-          this.loading.set(false);
-        },
+        next: () => this.loading.set(false),
         error: () => this.loading.set(false)
       });
     } else {
@@ -600,26 +678,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: () => this.loading.set(false)
       });
-      this.retourService.getAll().subscribe({
-        next: (retours) => {
-          this.allRetours.set(retours);
-          this.updateCauseChart(retours);
-        },
-        error: () => {}
-      });
     }
   }
 
   updateDoughnutFromStats(data: DashboardStats): void {
-    const colors = ['#14b8a6', '#0d9488', '#0f766e', '#2dd4bf', '#115e59'];
     this.doughnutData = {
       labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
-      datasets: [{ data: [data.retoursEnAttente, data.retoursEnCours, data.retoursValides, data.retoursTraites, data.retoursRejetes], backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }]
+      datasets: [{ data: [data.retoursEnAttente, data.retoursEnCours, data.retoursValides, data.retoursTraites, data.retoursRejetes], backgroundColor: this.stateColors, borderWidth: 0, hoverOffset: 6 }]
     };
   }
 
   updateDoughnutFromRetours(retours: RetourProduit[]): void {
-    const colors = ['#14b8a6', '#0d9488', '#0f766e', '#2dd4bf', '#115e59'];
     const counts = [
       retours.filter(r => r.etatTraitement === EtatTraitement.EN_ATTENTE).length,
       retours.filter(r => r.etatTraitement === EtatTraitement.EN_COURS).length,
@@ -629,7 +698,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
     this.doughnutData = {
       labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
-      datasets: [{ data: counts, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }]
+      datasets: [{ data: counts, backgroundColor: this.stateColors, borderWidth: 0, hoverOffset: 6 }]
     };
   }
 
@@ -642,8 +711,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const sorted = Object.entries(causeCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const labels = sorted.map(([label]) => label.length > 28 ? label.substring(0, 28) + '\u2026' : label);
     const data = sorted.map(([, count]) => count);
-    const shades = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4', '#0f766e', '#115e59', '#134e4a'];
-    const colors = sorted.map((_, i) => shades[i % shades.length]);
+    const palette = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4', '#0f766e', '#115e59', '#134e4a'];
+    const colors = sorted.map((_, i) => palette[i % palette.length]);
     this.causeData = {
       labels,
       datasets: [{ label: 'Retours', data, backgroundColor: colors, borderRadius: 6, borderSkipped: false }]
