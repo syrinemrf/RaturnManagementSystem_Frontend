@@ -36,11 +36,11 @@ export class GraviteBadgeComponent {
 
   getConfig(): { label: string; bg: string; color: string; dot: string } {
     const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
-      FAIBLE:   { label: 'Faible',   bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
-      MOYENNE:  { label: 'Moyenne',  bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
-      HAUTE:    { label: 'Haute',    bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
-      CRITIQUE: { label: 'Critique', bg: '#fce7f3', color: '#9d174d', dot: '#ec4899' }
+      FAIBLE:   { label: 'Faible',   bg: 'rgba(16,185,129,0.12)',  color: '#059669', dot: '#10b981' },
+      MOYENNE:  { label: 'Moyenne',  bg: 'rgba(245,158,11,0.12)', color: '#d97706', dot: '#f59e0b' },
+      HAUTE:    { label: 'Haute',    bg: 'rgba(239,68,68,0.12)',  color: '#dc2626', dot: '#ef4444' },
+      CRITIQUE: { label: 'Critique', bg: 'rgba(236,72,153,0.12)', color: '#e11d48', dot: '#ec4899' }
     };
-    return map[this.gravite] || { label: this.gravite, bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' };
+    return map[this.gravite] || { label: this.gravite, bg: 'rgba(148,163,184,0.12)', color: '#64748b', dot: '#94a3b8' };
   }
 }

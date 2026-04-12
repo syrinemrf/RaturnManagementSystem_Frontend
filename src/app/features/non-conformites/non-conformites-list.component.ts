@@ -112,7 +112,7 @@ export class NcFormDialogComponent {
     <div class="page-header animate-fade-up">
       <div>
         <h1 class="page-title">Non-Conformités</h1>
-        <p class="page-page-subtitle">Gestion des anomalies qualité</p>
+        <p class="page-subtitle">Gestion des anomalies qualité</p>
       </div>
       <button mat-raised-button color="primary" (click)="openForm(null)" *ngIf="authService.isQualite()">
         <mat-icon>add</mat-icon> Nouvelle NC
@@ -199,10 +199,13 @@ export class NcFormDialogComponent {
     .search-field { flex: 1; min-width: 200px; }
     .table-container { overflow-x: auto; }
     .full-width { width: 100%; }
-    .desc-cell { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
+    .desc-cell { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: var(--text-muted); }
     .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
-    .loading-center { display: flex; justify-content: center; padding: 64
+    .loading-center { display: flex; justify-content: center; padding: 64px; }
+  `]
+})
+export class NonConformitesListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 

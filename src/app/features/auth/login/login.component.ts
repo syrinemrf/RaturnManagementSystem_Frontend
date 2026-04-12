@@ -1,4 +1,4 @@
-﻿import { Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -19,21 +19,23 @@ import { AuthService } from '../../../core/services/auth.service';
   ],
   template: `
     <div class="login-page">
-      <!-- â”€â”€ Left Brand Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="brand-panel">
         <div class="brand-panel-inner">
           <div class="logo-wrap">
             <div class="logo-box">
-              <mat-icon>inventory_2</mat-icon>
+              <mat-icon>verified_user</mat-icon>
             </div>
-            <span class="logo-name">RetourPro</span>
+            <div class="logo-text">
+              <span class="logo-name">QualiTrack</span>
+              <span class="logo-tagline">Suivi des retours</span>
+            </div>
           </div>
 
           <h1 class="brand-headline">
-            GÃ©rez vos retours<br><span class="highlight">avec efficacitÃ©</span>
+            Pilotez la qualit&#233;<br><span class="highlight">de vos retours</span>
           </h1>
           <p class="brand-sub">
-            Plateforme centralisÃ©e pour le suivi, la qualification et la rÃ©solution des retours produits.
+            Plateforme centralis&#233;e pour le suivi, la qualification et la r&#233;solution des retours produits.
           </p>
 
           <ul class="feature-list">
@@ -48,13 +50,10 @@ import { AuthService } from '../../../core/services/auth.service';
             </li>
           </ul>
         </div>
-
-        <!-- Decorative blobs -->
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
       </div>
 
-      <!-- â”€â”€ Right Form Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="form-panel">
         <div class="form-wrap animate-fade-up">
           <div class="form-header">
@@ -63,18 +62,16 @@ import { AuthService } from '../../../core/services/auth.service';
           </div>
 
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-            <!-- Email -->
             <div class="field-group">
               <label class="field-label">Adresse email</label>
               <mat-form-field appearance="outline" class="full-width">
-                <input matInput type="email" formControlName="email" placeholder="nom@entreprise.com" autocomplete="email">
+                <input matInput type="email" formControlName="email" placeholder="nom&#64;entreprise.com" autocomplete="email">
                 <mat-icon matSuffix class="field-suffix-icon">alternate_email</mat-icon>
                 <mat-error *ngIf="loginForm.get('email')?.hasError('required')">Email requis</mat-error>
                 <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Format invalide</mat-error>
               </mat-form-field>
             </div>
 
-            <!-- Password -->
             <div class="field-group">
               <label class="field-label">Mot de passe</label>
               <mat-form-field appearance="outline" class="full-width">
@@ -86,25 +83,22 @@ import { AuthService } from '../../../core/services/auth.service';
               </mat-form-field>
             </div>
 
-            <!-- Error -->
             <div class="error-banner" *ngIf="errorMessage()">
               <mat-icon>error_outline</mat-icon>
               <span>{{ errorMessage() }}</span>
             </div>
 
-            <!-- Submit -->
             <button class="submit-btn" type="submit" [disabled]="loginForm.invalid || loading()">
               <mat-spinner *ngIf="loading()" diameter="18" class="btn-spinner"></mat-spinner>
               <mat-icon *ngIf="!loading()">login</mat-icon>
-              <span>{{ loading() ? 'Connexionâ€¦' : 'Se connecter' }}</span>
+              <span>{{ loading() ? 'Connexion...' : 'Se connecter' }}</span>
             </button>
           </form>
 
-          <!-- Demo accounts -->
           <div class="demo-box">
             <p class="demo-title">
               <mat-icon>info_outline</mat-icon>
-              Comptes de dÃ©monstration
+              Comptes de d&#233;monstration
             </p>
             <div class="demo-accounts">
               <div class="demo-account" *ngFor="let d of demoAccounts" (click)="fillDemo(d)">
@@ -118,41 +112,35 @@ import { AuthService } from '../../../core/services/auth.service';
     </div>
   `,
   styles: [`
-    .login-page {
-      display: flex;
-      min-height: 100vh;
-    }
+    .login-page { display: flex; min-height: 100vh; }
 
-    /* â”€â”€â”€ Brand Panel â”€â”€â”€ */
     .brand-panel {
-      flex: 0 0 52%;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(145deg, #4338ca 0%, #6366f1 45%, #818cf8 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
+      flex: 0 0 52%; position: relative; overflow: hidden;
+      background: linear-gradient(145deg, #1d4ed8 0%, #2563eb 45%, #3b82f6 100%);
+      display: flex; align-items: center; justify-content: center; padding: 48px;
     }
     .brand-panel-inner { position: relative; z-index: 1; max-width: 440px; color: white; }
 
     .logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
     .logo-box {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(8px);
+      width: 48px; height: 48px; border-radius: 14px;
+      background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: center;
-      mat-icon { color: white; font-size: 24px; height: 24px; width: 24px; }
+      mat-icon { color: white; font-size: 26px; height: 26px; width: 26px; }
     }
-    .logo-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: white; }
+    .logo-text { display: flex; flex-direction: column; }
+    .logo-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800; color: white;
+    }
+    .logo-tagline { font-size: 11px; opacity: 0.75; letter-spacing: 0.05em; text-transform: uppercase; }
 
     .brand-headline {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 42px; font-weight: 800;
-      line-height: 1.2; margin: 0 0 16px;
-      color: white;
+      font-size: 42px; font-weight: 800; line-height: 1.2;
+      margin: 0 0 16px; color: white;
     }
-    .highlight { color: #c7d2fe; }
+    .highlight { color: #93c5fd; }
     .brand-sub { font-size: 15px; opacity: 0.85; line-height: 1.6; margin: 0 0 40px; }
 
     .feature-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 20px; }
@@ -166,46 +154,34 @@ import { AuthService } from '../../../core/services/auth.service';
     .feature-item strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
     .feature-item p { margin: 0; font-size: 13px; opacity: 0.75; }
 
-    /* Blobs */
-    .blob {
-      position: absolute; border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-      pointer-events: none;
-    }
+    .blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.06); pointer-events: none; }
     .blob-1 { width: 400px; height: 400px; top: -120px; right: -100px; }
     .blob-2 { width: 300px; height: 300px; bottom: -80px; left: -60px; }
 
-    /* â”€â”€â”€ Form Panel â”€â”€â”€ */
     .form-panel {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px 40px;
-      background: #f8fafc;
-      overflow-y: auto;
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 48px 40px; background: var(--bg); overflow-y: auto;
     }
     .form-wrap { width: 100%; max-width: 400px; }
 
     .form-header { margin-bottom: 32px; }
     .form-header h2 {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 28px; font-weight: 700;
-      color: #0f172a; margin: 0 0 6px;
+      font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0 0 6px;
     }
-    .form-header p { margin: 0; color: #64748b; font-size: 14px; }
+    .form-header p { margin: 0; color: var(--text-secondary); font-size: 14px; }
 
     .login-form { display: flex; flex-direction: column; gap: 4px; }
     .field-group { display: flex; flex-direction: column; gap: 6px; }
-    .field-label { font-size: 13px; font-weight: 600; color: #374151; }
+    .field-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
     .full-width { width: 100%; }
-    .field-suffix-icon { color: #94a3b8; font-size: 18px; }
-    .visibility-btn { color: #94a3b8 !important; }
+    .field-suffix-icon { color: var(--text-muted); font-size: 18px; }
+    .visibility-btn { color: var(--text-muted) !important; }
 
     .error-banner {
       display: flex; align-items: center; gap: 8px;
-      background: #fef2f2; color: #dc2626;
-      border: 1px solid #fecaca; border-radius: 10px;
+      background: var(--error-light); color: var(--error);
+      border: 1px solid currentColor; border-radius: 10px;
       padding: 10px 14px; font-size: 13px; font-weight: 500;
       mat-icon { font-size: 18px; height: 18px; width: 18px; flex-shrink: 0; }
     }
@@ -213,48 +189,43 @@ import { AuthService } from '../../../core/services/auth.service';
     .submit-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; height: 48px; border: none; border-radius: 12px; cursor: pointer;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: white; font-size: 15px; font-weight: 600;
       font-family: inherit; letter-spacing: 0.01em;
-      box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.35);
       transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
       margin-top: 8px;
       mat-icon { font-size: 20px; height: 20px; width: 20px; }
-      &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,102,241,0.4); }
+      &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,99,235,0.4); }
       &:active:not(:disabled) { transform: translateY(0); }
       &:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
     }
     .btn-spinner { display: inline-block; }
     ::ng-deep .btn-spinner circle { stroke: white !important; }
 
-    /* Demo box */
     .demo-box {
-      margin-top: 28px;
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 16px;
+      margin-top: 28px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 14px; padding: 16px;
     }
     .demo-title {
       display: flex; align-items: center; gap: 6px;
       margin: 0 0 12px; font-size: 12px; font-weight: 600;
-      color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em;
       mat-icon { font-size: 14px; height: 14px; width: 14px; }
     }
     .demo-accounts { display: flex; flex-direction: column; gap: 8px; }
     .demo-account {
       display: flex; align-items: center; gap: 10px;
       padding: 8px 10px; border-radius: 8px;
-      border: 1px solid #f1f5f9; background: #fafafa;
+      border: 1px solid var(--border); background: var(--surface-raised);
       cursor: pointer; transition: background 0.15s ease;
-      &:hover { background: #f1f5f9; }
-      code { font-size: 12px; color: #475569; }
+      &:hover { background: var(--surface-hover); }
+      code { font-size: 12px; color: var(--text-secondary); }
     }
     .demo-role-badge {
       font-size: 10px; font-weight: 700; color: white;
       padding: 2px 8px; border-radius: 20px;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      flex-shrink: 0;
+      text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0;
     }
 
     @media (max-width: 900px) {
@@ -270,15 +241,15 @@ export class LoginComponent {
   errorMessage = signal('');
 
   features = [
-    { icon: 'track_changes', title: 'Suivi en temps rÃ©el', desc: 'Suivez l\'Ã©tat de chaque retour instantanÃ©ment.' },
-    { icon: 'verified', title: 'ContrÃ´le qualitÃ©', desc: 'GÃ©rez les non-conformitÃ©s et leurs gravitÃ©s.' },
-    { icon: 'people_alt', title: 'Collaboration d\'Ã©quipe', desc: 'RÃ´les Admin, QualitÃ© et EmployÃ© pour chaque besoin.' }
+    { icon: 'track_changes', title: 'Suivi en temps r\u00e9el', desc: 'Suivez l\u0027\u00e9tat de chaque retour instantan\u00e9ment.' },
+    { icon: 'verified', title: 'Contr\u00f4le qualit\u00e9', desc: 'G\u00e9rez les non-conformit\u00e9s et leurs gravit\u00e9s.' },
+    { icon: 'people_alt', title: 'Collaboration d\u0027\u00e9quipe', desc: 'R\u00f4les Admin, Qualit\u00e9 et Employ\u00e9 pour chaque besoin.' }
   ];
 
   demoAccounts = [
-    { role: 'Admin', email: 'admin@retours.com', password: 'Admin123!', color: '#6366f1' },
-    { role: 'QualitÃ©', email: 'qualite@retours.com', password: 'Qualite123!', color: '#10b981' },
-    { role: 'EmployÃ©', email: 'employe@retours.com', password: 'Employe123!', color: '#f59e0b' }
+    { role: 'Admin', email: 'admin@retours.com', password: 'Admin123!', color: '#2563eb' },
+    { role: 'Qualit\u00e9', email: 'qualite@retours.com', password: 'Qualite123!', color: '#059669' },
+    { role: 'Employ\u00e9', email: 'employe@retours.com', password: 'Employe123!', color: '#d97706' }
   ];
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
@@ -311,7 +282,7 @@ export class LoginComponent {
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.errorMessage.set(err?.error?.message || 'Identifiants incorrects. Veuillez rÃ©essayer.');
+        this.errorMessage.set(err?.error?.message || 'Identifiants incorrects. Veuillez r\u00e9essayer.');
       }
     });
   }

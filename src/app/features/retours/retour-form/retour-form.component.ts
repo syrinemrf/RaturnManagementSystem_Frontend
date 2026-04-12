@@ -110,14 +110,14 @@ import { RetourProduit, EtatTraitement, RetourRequest, ChangerEtatRequest } from
   `,
   styles: [`
     .page-header { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
-    .page-header h1 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: #0f172a; }
+    .page-header h1 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-primary); }
     .loading-center { display: flex; justify-content: center; padding: 80px; }
     .form-container { display: flex; flex-direction: column; gap: 16px; max-width: 820px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .full-col { grid-column: 1 / -1; }
     .form-actions { display: flex; justify-content: flex-end; gap: 12px; padding-top: 4px; }
-    .state-card { border-left: 4px solid #6366f1 !important; }
-    .section-title { font-size: 14px !important; font-weight: 700 !important; color: #0f172a !important; text-transform: uppercase; letter-spacing: 0.06em !important; }
+    .state-card { border-left: 4px solid var(--primary) !important; }
+    .section-title { font-size: 14px !important; font-weight: 700 !important; color: var(--text-primary) !important; text-transform: uppercase; letter-spacing: 0.06em !important; }
   `]
 })
 export class RetourFormComponent implements OnInit {

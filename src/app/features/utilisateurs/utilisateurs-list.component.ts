@@ -177,7 +177,7 @@ export class UtilisateurFormDialogComponent {
     .search-field { flex: 1; min-width: 200px; }
     .table-container { overflow-x: auto; }
     .full-width { width: 100%; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: var(--text-muted); }
     .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
     .loading-center { display: flex; justify-content: center; padding: 64px; }
   `]
@@ -225,7 +225,7 @@ export class UtilisateursListComponent implements OnInit {
   }
 
   getRoleColor(role: RoleUtilisateur): string {
-    return { ROLE_ADMIN: '#7b1fa2', ROLE_QUALITE: '#00796b', ROLE_EMPLOYE: '#1565c0' }[role] || '#9e9e9e';
+    return { ROLE_ADMIN: '#7c3aed', ROLE_QUALITE: '#059669', ROLE_EMPLOYE: '#2563eb' }[role] || '#94a3b8';
   }
 
   openForm(user: Utilisateur | null): void {

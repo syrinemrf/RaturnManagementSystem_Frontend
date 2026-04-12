@@ -78,10 +78,10 @@ import { EtatTraitement } from '../../core/models/retour.model';
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
     .loading-center { display: flex; justify-content: center; padding: 80px; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: var(--text-muted); }
     .empty-state mat-icon { font-size: 64px; height: 64px; width: 64px; }
     .timeline { position: relative; padding-left: 52px; }
-    .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #6366f1 0%, #e2e8f0 100%); }
+    .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--primary) 0%, var(--border) 100%); }
     .timeline-item { position: relative; margin-bottom: 28px; }
     .timeline-marker {
       position: absolute; left: -44px; top: 0;
@@ -91,20 +91,20 @@ import { EtatTraitement } from '../../core/models/retour.model';
     }
     .marker-icon { font-size: 18px; height: 18px; width: 18px; color: white; }
     .timeline-content {
-      background: white; border: 1px solid #e2e8f0;
+      background: var(--card-bg); border: 1px solid var(--card-border);
       border-radius: 12px; padding: 14px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: var(--shadow-sm);
       transition: box-shadow 0.15s ease;
-      &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+      &:hover { box-shadow: var(--shadow-md); }
     }
     .timeline-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-    .action-text { font-weight: 600; font-size: 14px; color: #0f172a; }
-    .action-date { font-size: 11px; color: #94a3b8; font-weight: 500; white-space: nowrap; }
-    .timeline-details { display: flex; gap: 16px; font-size: 12px; color: #64748b; margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
+    .action-text { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+    .action-date { font-size: 11px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+    .timeline-details { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
     .employee { display: flex; align-items: center; gap: 4px; }
     .state-transition { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-    .state-old { font-size: 11px; background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
-    .state-new { font-size: 11px; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .state-old { font-size: 11px; background: var(--error-light); color: var(--error); padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .state-new { font-size: 11px; background: var(--success-light); color: var(--success); padding: 2px 8px; border-radius: 20px; font-weight: 600; }
     a[routerLink] { font-size: 12px; font-weight: 500; }
   `]
 })
@@ -133,13 +133,13 @@ export class HistoriqueComponent implements OnInit {
 
   getActionColor(etat?: EtatTraitement): string {
     const colors: Record<string, string> = {
-      EN_ATTENTE: '#ff9800',
-      EN_COURS: '#2196f3',
-      VALIDE: '#009688',
-      TRAITE: '#4caf50',
-      REJETE: '#f44336'
+      EN_ATTENTE: '#d97706',
+      EN_COURS: '#3b82f6',
+      VALIDE: '#059669',
+      TRAITE: '#22c55e',
+      REJETE: '#dc2626'
     };
-    return etat ? (colors[etat] || '#3f51b5') : '#3f51b5';
+    return etat ? (colors[etat] || '#2563eb') : '#2563eb';
   }
 
   getActionIcon(etat?: EtatTraitement): string {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,15 +16,16 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [CommonModule, RouterModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, MatTooltipModule],
   template: `
     <header class="navbar">
-      <!-- Brand -->
       <a class="brand" routerLink="/dashboard">
         <div class="brand-icon">
-          <mat-icon>inventory_2</mat-icon>
+          <mat-icon>verified_user</mat-icon>
         </div>
-        <span class="brand-name">RetourPro</span>
+        <div class="brand-text">
+          <span class="brand-name">QualiTrack</span>
+          <span class="brand-tagline">Suivi des retours</span>
+        </div>
       </a>
 
-      <!-- Navigation links -->
       <nav class="nav-links">
         <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
           <mat-icon class="nav-icon">dashboard</mat-icon>
@@ -35,7 +37,7 @@ import { AuthService } from '../../core/services/auth.service';
         </a>
         <a class="nav-item" routerLink="/non-conformites" routerLinkActive="active" *ngIf="authService.isQualite()">
           <mat-icon class="nav-icon">report_problem</mat-icon>
-          <span>Non-Conformités</span>
+          <span>Non-Conformit&#233;s</span>
         </a>
         <a class="nav-item" routerLink="/historique" routerLinkActive="active" *ngIf="authService.isQualite()">
           <mat-icon class="nav-icon">timeline</mat-icon>
@@ -47,8 +49,11 @@ import { AuthService } from '../../core/services/auth.service';
         </a>
       </nav>
 
-      <!-- User section -->
-      <div class="user-section">
+      <div class="actions-section">
+        <button class="theme-toggle" (click)="themeService.toggle()" [matTooltip]="themeService.isDark() ? 'Mode clair' : 'Mode sombre'">
+          <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+
         <button class="avatar-btn" [matMenuTriggerFor]="userMenu" matTooltip="Mon compte">
           <div class="avatar">{{ getInitials() }}</div>
           <div class="user-info hide-sm">
@@ -67,9 +72,14 @@ import { AuthService } from '../../core/services/auth.service';
             </div>
           </div>
           <mat-divider></mat-divider>
+          <button mat-menu-item (click)="themeService.toggle()">
+            <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            <span>{{ themeService.isDark() ? 'Mode clair' : 'Mode sombre' }}</span>
+          </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()" class="logout-item">
             <mat-icon>logout</mat-icon>
-            <span>Se déconnecter</span>
+            <span>Se d&#233;connecter</span>
           </button>
         </mat-menu>
       </div>
@@ -77,142 +87,120 @@ import { AuthService } from '../../core/services/auth.service';
   `,
   styles: [`
     .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.88);
+      position: sticky; top: 0; z-index: 1000;
+      height: 64px; display: flex; align-items: center;
+      padding: 0 24px; gap: 8px;
+      background: var(--navbar-bg);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--navbar-border);
+      box-shadow: var(--shadow-sm);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    /* Brand */
     .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; flex-shrink: 0;
     }
     .brand-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.35);
       mat-icon { color: white; font-size: 20px; height: 20px; width: 20px; }
     }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
     .brand-name {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 17px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.3px;
+      font-size: 16px; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.3px;
+    }
+    .brand-tagline {
+      font-size: 10px; color: var(--text-muted); font-weight: 500;
+      letter-spacing: 0.03em;
     }
 
-    /* Nav links */
     .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      margin-left: 24px;
-      flex: 1;
+      display: flex; align-items: center; gap: 2px;
+      margin-left: 24px; flex: 1;
     }
     .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      border-radius: 9px;
-      text-decoration: none;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: #64748b;
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 9px;
+      text-decoration: none; font-size: 13.5px; font-weight: 500;
+      color: var(--text-muted);
       transition: background 0.15s ease, color 0.15s ease;
       white-space: nowrap;
       .nav-icon { font-size: 17px; height: 17px; width: 17px; }
     }
-    .nav-item:hover {
-      background: #f1f5f9;
-      color: #0f172a;
-    }
+    .nav-item:hover { background: var(--surface-hover); color: var(--text-primary); }
     .nav-item.active {
-      background: #eef2ff;
-      color: #6366f1;
+      background: var(--primary-light); color: var(--primary);
       font-weight: 600;
     }
 
-    /* User */
-    .user-section { display: flex; align-items: center; margin-left: auto; flex-shrink: 0; }
+    .actions-section { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+
+    .theme-toggle {
+      width: 36px; height: 36px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--text-secondary); }
+      &:hover { background: var(--surface-hover); border-color: var(--border-strong); transform: scale(1.05); }
+    }
+
     .avatar-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
       padding: 6px 10px 6px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      background: white;
-      cursor: pointer;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: var(--surface); cursor: pointer;
       transition: box-shadow 0.15s ease, border-color 0.15s ease;
-      &:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+      &:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
     }
     .avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #6366f1, #818cf8);
-      color: white;
-      font-size: 13px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .user-info { display: flex; flex-direction: column; align-items: flex-start; }
-    .user-name { font-size: 13px; font-weight: 600; color: #0f172a; line-height: 1.2; }
-    .user-role { font-size: 11px; color: #94a3b8; line-height: 1.2; }
-    .chevron { color: #94a3b8; font-size: 18px; height: 18px; width: 18px; }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .user-role { font-size: 11px; color: var(--text-muted); line-height: 1.2; }
+    .chevron { color: var(--text-muted); font-size: 18px; height: 18px; width: 18px; }
 
-    /* Menu */
     ::ng-deep .user-menu-panel { border-radius: 14px !important; overflow: hidden; min-width: 200px !important; }
-    .menu-header { display: flex; align-items: center; gap: 12px; padding: 16px; background: #f8fafc; }
+    .menu-header { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--surface-raised); }
     .menu-avatar {
       width: 40px; height: 40px; border-radius: 10px;
-      background: linear-gradient(135deg, #6366f1, #818cf8);
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
       color: white; font-size: 16px; font-weight: 700;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .menu-name { margin: 0; font-size: 14px; font-weight: 600; color: #0f172a; }
-    .menu-email { margin: 2px 0 0; font-size: 12px; color: #94a3b8; }
-    .logout-item mat-icon { color: #ef4444; }
-    .logout-item span { color: #ef4444; font-weight: 500; }
+    .menu-name { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .menu-email { margin: 2px 0 0; font-size: 12px; color: var(--text-muted); }
+    .logout-item mat-icon { color: var(--error); }
+    .logout-item span { color: var(--error); font-weight: 500; }
 
     @media (max-width: 900px) {
       .nav-item span { display: none; }
       .nav-item { padding: 8px; }
     }
     @media (max-width: 640px) {
-      .brand-name { display: none; }
+      .brand-text { display: none; }
       .hide-sm { display: none !important; }
       .navbar { padding: 0 16px; }
     }
   `]
 })
 export class NavbarComponent {
-  constructor(public authService: AuthService, private router: Router) {}
+  constructor(
+    public authService: AuthService,
+    public themeService: ThemeService,
+    private router: Router
+  ) {}
 
   getInitials(): string {
     const nom = this.authService.getCurrentUser()?.nom || '';
@@ -223,8 +211,8 @@ export class NavbarComponent {
     const role = this.authService.getCurrentUser()?.role || '';
     const labels: Record<string, string> = {
       ROLE_ADMIN: 'Administrateur',
-      ROLE_QUALITE: 'Qualité',
-      ROLE_EMPLOYE: 'Employé'
+      ROLE_QUALITE: 'Qualit\u00e9',
+      ROLE_EMPLOYE: 'Employ\u00e9'
     };
     return labels[role] || role;
   }

@@ -36,12 +36,12 @@ export class StatusBadgeComponent {
 
   getConfig(): { label: string; bg: string; color: string; dot: string } {
     const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
-      EN_ATTENTE: { label: 'En Attente', bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
-      EN_COURS:   { label: 'En Cours',   bg: '#dbeafe', color: '#1e40af', dot: '#3b82f6' },
-      VALIDE:     { label: 'Validé',     bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
-      TRAITE:     { label: 'Traité',     bg: '#dcfce7', color: '#14532d', dot: '#22c55e' },
-      REJETE:     { label: 'Rejeté',     bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' }
+      EN_ATTENTE: { label: 'En Attente', bg: 'rgba(245,158,11,0.12)', color: '#d97706', dot: '#f59e0b' },
+      EN_COURS:   { label: 'En Cours',   bg: 'rgba(59,130,246,0.12)',  color: '#3b82f6', dot: '#3b82f6' },
+      VALIDE:     { label: 'Valid\u00e9',  bg: 'rgba(16,185,129,0.12)',  color: '#059669', dot: '#10b981' },
+      TRAITE:     { label: 'Trait\u00e9',  bg: 'rgba(34,197,94,0.12)',   color: '#059669', dot: '#22c55e' },
+      REJETE:     { label: 'Rejet\u00e9',  bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', dot: '#ef4444' }
     };
-    return map[this.etat] || { label: this.etat, bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' };
+    return map[this.etat] || { label: this.etat, bg: 'rgba(148,163,184,0.12)', color: '#64748b', dot: '#94a3b8' };
   }
 }

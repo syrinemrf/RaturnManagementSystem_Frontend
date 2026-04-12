@@ -139,7 +139,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     .reset-btn { flex-shrink: 0; }
     .table-container { overflow-x: auto; }
     .full-width { width: 100%; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: #cbd5e1; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 64px; color: var(--text-muted); }
     .empty-state mat-icon { font-size: 56px; height: 56px; width: 56px; }
     .empty-state p { margin: 12px 0 0; font-size: 15px; }
     .loading-center { display: flex; justify-content: center; padding: 64px; }
