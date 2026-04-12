@@ -17,9 +17,12 @@ import { ThemeService } from '../../core/services/theme.service';
   template: `
     <header class="navbar">
       <a class="brand" routerLink="/dashboard">
-        <div class="brand-icon">
-          <mat-icon>verified_user</mat-icon>
-        </div>
+        <svg class="brand-icon-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="10" fill="url(#qt-grad)"/>
+          <defs><linearGradient id="qt-grad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#14b8a6"/><stop offset="1" stop-color="#0f766e"/></linearGradient></defs>
+          <path d="M18 8L27 12.5V19C27 24 23 28 18 30C13 28 9 24 9 19V12.5L18 8Z" fill="rgba(255,255,255,0.2)"/>
+          <path d="M13.5 18.5L16.5 21.5L22.5 15.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <div class="brand-text">
           <span class="brand-name">QualiTrack</span>
           <span class="brand-tagline">Suivi des retours</span>
@@ -102,12 +105,9 @@ import { ThemeService } from '../../core/services/theme.service';
       display: flex; align-items: center; gap: 10px;
       text-decoration: none; flex-shrink: 0;
     }
-    .brand-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.35);
-      mat-icon { color: white; font-size: 20px; height: 20px; width: 20px; }
+    .brand-icon-svg {
+      width: 36px; height: 36px; flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(13, 148, 136, 0.35));
     }
     .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
     .brand-name {

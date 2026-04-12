@@ -15,15 +15,15 @@ html, body {
 
 // ─── Design Tokens (Light) ───────────────────────────────────────────────────
 :root, [data-theme="light"] {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-light: #dbeafe;
-  --primary-rgb: 37, 99, 235;
-  --primary-hover: #3b82f6;
+  --primary: #0d9488;
+  --primary-dark: #0f766e;
+  --primary-light: #ccfbf1;
+  --primary-rgb: 13, 148, 136;
+  --primary-hover: #14b8a6;
 
-  --accent: #7c3aed;
-  --accent-light: #ede9fe;
-  --accent-rgb: 124, 58, 237;
+  --accent: #6366f1;
+  --accent-light: #e0e7ff;
+  --accent-rgb: 99, 102, 241;
 
   --success: #059669;
   --success-light: #d1fae5;
@@ -71,15 +71,15 @@ html, body {
 
 // ─── Dark Mode ───────────────────────────────────────────────────────────────
 [data-theme="dark"] {
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #1e3a5f;
-  --primary-rgb: 59, 130, 246;
-  --primary-hover: #60a5fa;
+  --primary: #14b8a6;
+  --primary-dark: #0d9488;
+  --primary-light: rgba(20, 184, 166, 0.15);
+  --primary-rgb: 20, 184, 166;
+  --primary-hover: #2dd4bf;
 
-  --accent: #a78bfa;
-  --accent-light: #2e1065;
-  --accent-rgb: 167, 139, 250;
+  --accent: #818cf8;
+  --accent-light: #1e1b4b;
+  --accent-rgb: 129, 140, 248;
 
   --success: #34d399;
   --success-light: #064e3b;

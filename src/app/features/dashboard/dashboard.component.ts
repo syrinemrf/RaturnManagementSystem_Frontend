@@ -16,9 +16,11 @@ import {
 } from 'chart.js';
 
 import { DashboardService } from '../../core/services/dashboard.service';
+import { RetourService } from '../../core/services/retour.service';
+import { AuthService } from '../../core/services/auth.service';
 import { DashboardStats } from '../../core/models/dashboard.model';
+import { RetourProduit, EtatTraitement } from '../../core/models/retour.model';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
-import { EtatTraitement } from '../../core/models/retour.model';
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController, BarController, BarElement, CategoryScale, LinearScale, Title);
 
@@ -28,6 +30,18 @@ interface Alert {
   message: string;
   link: string;
   linkLabel: string;
+}
+
+interface KpiCard {
+  icon: string;
+  label: string;
+  value: number | string;
+  suffix?: string;
+  bg: string;
+  color: string;
+  badge?: string | null;
+  badgeBg?: string;
+  badgeColor?: string;
 }
 
 @Component({
@@ -43,14 +57,14 @@ interface Alert {
     <div class="dash-header animate-fade-up">
       <div>
         <h1 class="page-title">Tableau de Bord</h1>
-        <p class="page-subtitle">Vue d'ensemble du syst&#232;me de gestion des retours</p>
+        <p class="page-subtitle">{{ isEmploye ? 'Suivi de vos retours produits' : 'Vue d\\'ensemble du syst\u00e8me de gestion des retours' }}</p>
       </div>
       <div class="header-actions">
         <div class="refresh-info" *ngIf="!loading()">
           <mat-icon>schedule</mat-icon>
-          <span>Mise &#224; jour auto chaque minute</span>
+          <span>Mise \u00e0 jour auto chaque minute</span>
         </div>
-        <button mat-stroked-button (click)="loadStats()" *ngIf="!loading()">
+        <button mat-stroked-button (click)="loadData()" *ngIf="!loading()">
           <mat-icon>refresh</mat-icon> Actualiser
         </button>
       </div>
@@ -58,12 +72,24 @@ interface Alert {
 
     <div *ngIf="loading()" class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Chargement des statistiques&#8230;</p>
+      <p>Chargement des statistiques\u2026</p>
     </div>
 
-    <div *ngIf="!loading() && stats()" class="dashboard-content">
+    <div *ngIf="!loading()" class="dashboard-content">
 
-      <!-- Alerts Strip -->
+      <!-- Employee Welcome Banner -->
+      <div class="welcome-banner animate-fade-up" *ngIf="isEmploye">
+        <div class="welcome-icon"><mat-icon>waving_hand</mat-icon></div>
+        <div class="welcome-text">
+          <h2>Bienvenue, {{ userName }} !</h2>
+          <p>Retrouvez ici un aper\u00e7u de vos retours et de leur avancement.</p>
+        </div>
+        <button mat-raised-button color="primary" routerLink="/retours/nouveau" class="welcome-action">
+          <mat-icon>add</mat-icon> Nouveau Retour
+        </button>
+      </div>
+
+      <!-- Alerts Strip (admin/qualit\u00e9 only) -->
       <div class="alerts-strip animate-fade-up" *ngIf="alerts().length > 0">
         <div *ngFor="let a of alerts(); let i = index"
              class="alert-card"
@@ -81,73 +107,27 @@ interface Alert {
 
       <!-- KPI Cards -->
       <div class="kpi-grid animate-fade-up">
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-icon-wrap"><mat-icon>assignment</mat-icon></div>
+        <div class="kpi-card" *ngFor="let kpi of kpiCards(); let i = index" [style.animation-delay]="i * 60 + 'ms'">
+          <div class="kpi-icon" [style.background]="kpi.bg" [style.color]="kpi.color">
+            <mat-icon>{{ kpi.icon }}</mat-icon>
+          </div>
           <div class="kpi-body">
-            <p class="kpi-label">Total Retours</p>
-            <p class="kpi-value">{{ stats()!.totalRetours }}</p>
+            <p class="kpi-label">{{ kpi.label }}</p>
+            <p class="kpi-value">{{ kpi.value }}<small *ngIf="kpi.suffix">{{ kpi.suffix }}</small></p>
           </div>
-        </div>
-
-        <div class="kpi-card kpi-amber" style="cursor:pointer" routerLink="/retours">
-          <div class="kpi-icon-wrap"><mat-icon>hourglass_empty</mat-icon></div>
-          <div class="kpi-body">
-            <p class="kpi-label">En Attente</p>
-            <p class="kpi-value">{{ stats()!.retoursEnAttente }}</p>
-          </div>
-          <div class="kpi-trend" *ngIf="stats()!.retoursEnAttente > 0">
-            <mat-icon>trending_up</mat-icon>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-cyan">
-          <div class="kpi-icon-wrap"><mat-icon>autorenew</mat-icon></div>
-          <div class="kpi-body">
-            <p class="kpi-label">En Cours</p>
-            <p class="kpi-value">{{ stats()!.retoursEnCours }}</p>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-emerald">
-          <div class="kpi-icon-wrap"><mat-icon>check_circle</mat-icon></div>
-          <div class="kpi-body">
-            <p class="kpi-label">Taux de R&#233;solution</p>
-            <p class="kpi-value">{{ stats()!.tauxResolution | number:'1.0-1' }}<small>%</small></p>
-          </div>
-          <div class="kpi-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="stats()!.tauxResolution"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-rose" style="cursor:pointer" routerLink="/non-conformites">
-          <div class="kpi-icon-wrap"><mat-icon>report_problem</mat-icon></div>
-          <div class="kpi-body">
-            <p class="kpi-label">Non-Conformit&#233;s</p>
-            <p class="kpi-value">{{ stats()!.totalNonConformites }}</p>
-          </div>
-          <div class="kpi-sub" *ngIf="stats()!.nonConformitesCritiques > 0">
-            <span class="kpi-critical-badge">{{ stats()!.nonConformitesCritiques }} critiques</span>
-          </div>
-        </div>
-
-        <div class="kpi-card kpi-violet">
-          <div class="kpi-icon-wrap"><mat-icon>done_all</mat-icon></div>
-          <div class="kpi-body">
-            <p class="kpi-label">Trait&#233;s</p>
-            <p class="kpi-value">{{ stats()!.retoursTraites }}</p>
+          <div class="kpi-badge" *ngIf="kpi.badge" [style.background]="kpi.badgeBg" [style.color]="kpi.badgeColor">
+            {{ kpi.badge }}
           </div>
         </div>
       </div>
 
       <!-- Charts -->
       <div class="charts-grid">
-        <mat-card class="chart-card">
+        <mat-card class="chart-card animate-fade-up">
           <mat-card-header>
             <mat-card-title class="card-title">
               <mat-icon class="card-title-icon">donut_large</mat-icon>
-              R&#233;partition par &#201;tat
+              R\u00e9partition par \u00c9tat
             </mat-card-title>
           </mat-card-header>
           <mat-card-content class="chart-content">
@@ -155,33 +135,40 @@ interface Alert {
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="chart-card">
+        <mat-card class="chart-card animate-fade-up">
           <mat-card-header>
             <mat-card-title class="card-title">
-              <mat-icon class="card-title-icon">bar_chart</mat-icon>
-              Statistiques D&#233;taill&#233;es
+              <mat-icon class="card-title-icon">analytics</mat-icon>
+              Analyse par Cause de Retour
             </mat-card-title>
           </mat-card-header>
-          <mat-card-content class="chart-content">
-            <canvas baseChart [data]="barData" [options]="barOptions" type="bar"></canvas>
+          <mat-card-content class="chart-content cause-chart">
+            <canvas baseChart [data]="causeData" [options]="causeOptions" type="bar"></canvas>
           </mat-card-content>
         </mat-card>
       </div>
 
       <!-- Bottom Row -->
       <div class="bottom-grid">
-        <mat-card class="recent-card">
+        <mat-card class="recent-card animate-fade-up">
           <mat-card-header class="card-header-flex">
             <mat-card-title class="card-title">
               <mat-icon class="card-title-icon">list_alt</mat-icon>
-              Derniers Retours
+              {{ isEmploye ? 'Mes Derniers Retours' : 'Derniers Retours' }}
             </mat-card-title>
             <a mat-button color="primary" routerLink="/retours" class="view-all-btn">
               Voir tout <mat-icon>arrow_forward</mat-icon>
             </a>
           </mat-card-header>
           <mat-card-content>
-            <table mat-table [dataSource]="stats()!.recentRetours" class="full-width-table">
+            <div *ngIf="recentRetours().length === 0" class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p>Aucun retour pour le moment</p>
+              <button mat-stroked-button routerLink="/retours/nouveau" *ngIf="isEmploye">
+                <mat-icon>add</mat-icon> Cr\u00e9er un retour
+              </button>
+            </div>
+            <table mat-table [dataSource]="recentRetours()" class="full-width-table" *ngIf="recentRetours().length > 0">
               <ng-container matColumnDef="produit">
                 <th mat-header-cell *matHeaderCellDef>Produit</th>
                 <td mat-cell *matCellDef="let r"><strong>{{ r.produit }}</strong></td>
@@ -190,8 +177,14 @@ interface Alert {
                 <th mat-header-cell *matHeaderCellDef>Client</th>
                 <td mat-cell *matCellDef="let r">{{ r.client }}</td>
               </ng-container>
+              <ng-container matColumnDef="raison">
+                <th mat-header-cell *matHeaderCellDef>Raison</th>
+                <td mat-cell *matCellDef="let r">
+                  <span class="raison-chip">{{ r.raison }}</span>
+                </td>
+              </ng-container>
               <ng-container matColumnDef="etat">
-                <th mat-header-cell *matHeaderCellDef>&#201;tat</th>
+                <th mat-header-cell *matHeaderCellDef>\u00c9tat</th>
                 <td mat-cell *matCellDef="let r">
                   <app-status-badge [etat]="r.etatTraitement"></app-status-badge>
                 </td>
@@ -203,7 +196,7 @@ interface Alert {
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let r">
-                  <a mat-icon-button [routerLink]="['/retours', r.id]" color="primary" matTooltip="Voir d&#233;tails">
+                  <a mat-icon-button [routerLink]="['/retours', r.id]" color="primary" matTooltip="Voir d\u00e9tails">
                     <mat-icon>open_in_new</mat-icon>
                   </a>
                 </td>
@@ -214,11 +207,11 @@ interface Alert {
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="activity-card">
+        <mat-card class="activity-card animate-fade-up" *ngIf="!isEmploye && stats()">
           <mat-card-header>
             <mat-card-title class="card-title">
               <mat-icon class="card-title-icon">history</mat-icon>
-              Activit&#233; R&#233;cente
+              Activit\u00e9 R\u00e9cente
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
@@ -243,8 +236,30 @@ interface Alert {
               </div>
               <div *ngIf="!stats()!.recentActivite?.length" class="empty-act">
                 <mat-icon>event_note</mat-icon>
-                <p>Aucune activit&#233; r&#233;cente</p>
+                <p>Aucune activit\u00e9 r\u00e9cente</p>
               </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Employee: Summary instead of activity -->
+        <mat-card class="summary-card animate-fade-up" *ngIf="isEmploye">
+          <mat-card-header>
+            <mat-card-title class="card-title">
+              <mat-icon class="card-title-icon">pie_chart</mat-icon>
+              R\u00e9sum\u00e9
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="summary-list">
+              <div class="summary-row" *ngFor="let item of summaryItems()">
+                <span class="summary-label">{{ item.label }}</span>
+                <span class="summary-value" [style.color]="item.color">{{ item.value }}</span>
+              </div>
+            </div>
+            <div *ngIf="summaryItems().length === 0" class="empty-act">
+              <mat-icon>analytics</mat-icon>
+              <p>Aucune donn\u00e9e disponible</p>
             </div>
           </mat-card-content>
         </mat-card>
@@ -258,6 +273,24 @@ interface Alert {
     .refresh-info mat-icon { font-size: 16px; height: 16px; width: 16px; }
     .loading-container { display: flex; flex-direction: column; align-items: center; padding: 80px; gap: 16px; color: var(--text-secondary); }
 
+    /* Welcome Banner */
+    .welcome-banner {
+      display: flex; align-items: center; gap: 16px; padding: 20px 24px;
+      background: linear-gradient(135deg, rgba(13,148,136,0.08) 0%, rgba(20,184,166,0.04) 100%);
+      border: 1px solid rgba(13,148,136,0.15); border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+    }
+    .welcome-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(13,148,136,0.12); color: #0d9488;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      mat-icon { font-size: 24px; height: 24px; width: 24px; }
+    }
+    .welcome-text { flex: 1; }
+    .welcome-text h2 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .welcome-text p { margin: 4px 0 0; font-size: 13px; color: var(--text-secondary); }
+    .welcome-action { flex-shrink: 0; }
+
     /* Alerts */
     .alerts-strip { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     .alert-card {
@@ -269,23 +302,17 @@ interface Alert {
     .alert-danger {
       background: var(--error-light); border-color: rgba(var(--error-rgb), 0.2);
       .alert-icon-wrap { background: rgba(var(--error-rgb), 0.15); }
-      .alert-icon-wrap mat-icon { color: var(--error); }
-      .alert-message { color: var(--error); }
-      .alert-link { color: var(--error); }
+      .alert-icon-wrap mat-icon, .alert-message, .alert-link { color: var(--error); }
     }
     .alert-warning {
       background: var(--warning-light); border-color: rgba(var(--warning-rgb), 0.2);
       .alert-icon-wrap { background: rgba(var(--warning-rgb), 0.15); }
-      .alert-icon-wrap mat-icon { color: var(--warning); }
-      .alert-message { color: var(--warning); }
-      .alert-link { color: var(--warning); }
+      .alert-icon-wrap mat-icon, .alert-message, .alert-link { color: var(--warning); }
     }
     .alert-info {
       background: var(--info-light); border-color: rgba(var(--info-rgb), 0.2);
       .alert-icon-wrap { background: rgba(var(--info-rgb), 0.15); }
-      .alert-icon-wrap mat-icon { color: var(--info); }
-      .alert-message { color: var(--info); }
-      .alert-link { color: var(--info); }
+      .alert-icon-wrap mat-icon, .alert-message, .alert-link { color: var(--info); }
     }
     .alert-icon-wrap {
       width: 32px; height: 32px; border-radius: 8px;
@@ -299,42 +326,38 @@ interface Alert {
       mat-icon { font-size: 14px; height: 14px; width: 14px; }
     }
 
-    /* KPI Grid */
-    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    /* KPI Grid — clean flat cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .kpi-card {
+      background: var(--surface); border: 1px solid var(--card-border);
       border-radius: var(--radius-lg); padding: 20px;
-      display: flex; align-items: flex-start; gap: 14px;
-      position: relative; overflow: hidden;
+      display: flex; align-items: center; gap: 14px;
+      position: relative;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: default; color: white;
-      &:hover { transform: translateY(-3px); }
+      animation: fadeInUp 0.35s ease both;
+      &:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
     }
-    .kpi-blue    { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); box-shadow: 0 6px 20px rgba(37,99,235,0.3); }
-    .kpi-amber   { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 6px 20px rgba(217,119,6,0.3); }
-    .kpi-cyan    { background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); box-shadow: 0 6px 20px rgba(8,145,178,0.3); }
-    .kpi-emerald { background: linear-gradient(135deg, #059669 0%, #047857 100%); box-shadow: 0 6px 20px rgba(5,150,105,0.3); }
-    .kpi-rose    { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); box-shadow: 0 6px 20px rgba(225,29,72,0.3); }
-    .kpi-violet  { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); box-shadow: 0 6px 20px rgba(124,58,237,0.3); }
-
-    .kpi-icon-wrap {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: rgba(255,255,255,0.2);
+    .kpi-icon {
+      width: 48px; height: 48px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      mat-icon { font-size: 22px; height: 22px; width: 22px; color: white; }
+      mat-icon { font-size: 24px; height: 24px; width: 24px; }
     }
     .kpi-body { flex: 1; min-width: 0; }
-    .kpi-label { margin: 0; font-size: 11px; font-weight: 500; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.06em; }
-    .kpi-value { margin: 4px 0 0; font-size: 28px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1; small { font-size: 16px; opacity: 0.8; } }
-    .kpi-trend { position: absolute; top: 16px; right: 16px; opacity: 0.6; mat-icon { font-size: 20px; height: 20px; width: 20px; } }
-    .kpi-progress { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 20px 12px; }
-    .progress-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); }
-    .progress-fill { height: 100%; border-radius: 2px; background: rgba(255,255,255,0.7); transition: width 1s ease; }
-    .kpi-sub { position: absolute; top: 16px; right: 16px; }
-    .kpi-critical-badge { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 20px; animation: pulse-ring 2s infinite; }
+    .kpi-label { margin: 0; font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-value {
+      margin: 4px 0 0; font-size: 28px; font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-primary); line-height: 1;
+      small { font-size: 16px; color: var(--text-muted); }
+    }
+    .kpi-badge {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    }
 
     /* Charts */
     .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .chart-content { display: flex; justify-content: center; max-height: 280px; padding: 8px 0; }
+    .cause-chart { max-height: 320px; }
     .card-title {
       font-size: 15px !important; font-weight: 600 !important; color: var(--text-primary) !important;
       display: flex !important; align-items: center; gap: 8px;
@@ -344,9 +367,22 @@ interface Alert {
     .view-all-btn { display: flex; align-items: center; gap: 4px; font-size: 13px !important; }
     .view-all-btn mat-icon { font-size: 16px; height: 16px; width: 16px; }
 
+    /* Raison chip */
+    .raison-chip {
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
+      border-radius: 20px; background: rgba(13,148,136,0.1); color: #0d9488;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 160px; display: inline-block;
+    }
+
     /* Bottom Row */
     .bottom-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
     .full-width-table { width: 100%; }
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; padding: 40px; color: var(--text-muted); gap: 12px;
+      mat-icon { font-size: 48px; height: 48px; width: 48px; }
+      p { margin: 0; font-size: 14px; }
+    }
 
     /* Activity */
     .activity-list { max-height: 360px; overflow-y: auto; padding: 4px 0; }
@@ -366,113 +402,196 @@ interface Alert {
     .state-new { font-size: 11px; background: var(--success-light); color: var(--success); padding: 1px 7px; border-radius: 20px; font-weight: 600; }
     .empty-act { display: flex; flex-direction: column; align-items: center; padding: 32px 16px; color: var(--text-muted); mat-icon { font-size: 40px; height: 40px; width: 40px; } p { margin: 8px 0 0; } }
 
+    /* Summary card (employee) */
+    .summary-list { display: flex; flex-direction: column; }
+    .summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      &:last-child { border-bottom: none; }
+    }
+    .summary-label { font-size: 13px; color: var(--text-secondary); }
+    .summary-value { font-size: 18px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
+
     @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) {
       .charts-grid, .bottom-grid { grid-template-columns: 1fr; }
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .welcome-banner { flex-direction: column; text-align: center; }
     }
     @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }
   `]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   stats = signal<DashboardStats | null>(null);
+  allRetours = signal<RetourProduit[]>([]);
   loading = signal(true);
-  recentColumns = ['produit', 'client', 'etat', 'date', 'actions'];
+  isEmploye = false;
+  userName = '';
+  recentColumns = ['produit', 'client', 'raison', 'etat', 'date', 'actions'];
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+  recentRetours = computed(() => {
+    const s = this.stats();
+    if (s?.recentRetours?.length) return s.recentRetours.slice(0, 8);
+    return this.allRetours().slice(0, 8);
+  });
 
   alerts = computed<Alert[]>(() => {
     const s = this.stats();
-    if (!s) return [];
+    if (!s || this.isEmploye) return [];
     const list: Alert[] = [];
     if (s.nonConformitesCritiques > 0) {
-      list.push({
-        type: 'danger', icon: 'error',
-        message: s.nonConformitesCritiques + ' non-conformit\u00e9(s) critique(s) n\u00e9cessitent une attention imm\u00e9diate',
-        link: '/non-conformites', linkLabel: 'Voir les NC'
-      });
+      list.push({ type: 'danger', icon: 'error', message: s.nonConformitesCritiques + ' non-conformit\u00e9(s) critique(s) n\u00e9cessitent une attention imm\u00e9diate', link: '/non-conformites', linkLabel: 'Voir les NC' });
     }
     if (s.nonConformitesHautes > 0) {
-      list.push({
-        type: 'warning', icon: 'warning',
-        message: s.nonConformitesHautes + ' non-conformit\u00e9(s) de gravit\u00e9 haute en cours',
-        link: '/non-conformites', linkLabel: 'G\u00e9rer'
-      });
+      list.push({ type: 'warning', icon: 'warning', message: s.nonConformitesHautes + ' non-conformit\u00e9(s) de gravit\u00e9 haute en cours', link: '/non-conformites', linkLabel: 'G\u00e9rer' });
     }
     if (s.retoursEnAttente > 3) {
-      list.push({
-        type: 'info', icon: 'pending_actions',
-        message: s.retoursEnAttente + ' retour(s) en attente de traitement',
-        link: '/retours', linkLabel: 'Traiter'
-      });
+      list.push({ type: 'info', icon: 'pending_actions', message: s.retoursEnAttente + ' retour(s) en attente de traitement', link: '/retours', linkLabel: 'Traiter' });
     }
     return list;
   });
 
-  doughnutData: ChartData<'doughnut'> = {
-    labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
-    datasets: [{
-      data: [0, 0, 0, 0, 0],
-      backgroundColor: ['#d97706', '#0891b2', '#059669', '#2563eb', '#dc2626'],
-      borderWidth: 0,
-      hoverOffset: 6
-    }]
-  };
+  kpiCards = computed<KpiCard[]>(() => {
+    const s = this.stats();
+    const retours = this.allRetours();
 
-  doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '65%',
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12 } } }
+    if (this.isEmploye) {
+      const total = retours.length;
+      const enAttente = retours.filter(r => r.etatTraitement === EtatTraitement.EN_ATTENTE).length;
+      const enCours = retours.filter(r => r.etatTraitement === EtatTraitement.EN_COURS).length;
+      const traites = retours.filter(r => r.etatTraitement === EtatTraitement.TRAITE).length;
+      return [
+        { icon: 'assignment', label: 'Mes Retours', value: total, bg: 'rgba(13,148,136,0.1)', color: '#0d9488' },
+        { icon: 'hourglass_empty', label: 'En Attente', value: enAttente, bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', badge: enAttente > 0 ? '\u00c0 traiter' : null, badgeBg: 'rgba(245,158,11,0.1)', badgeColor: '#f59e0b' },
+        { icon: 'autorenew', label: 'En Cours', value: enCours, bg: 'rgba(59,130,246,0.1)', color: '#3b82f6' },
+        { icon: 'check_circle', label: 'Trait\u00e9s', value: traites, bg: 'rgba(34,197,94,0.1)', color: '#22c55e' }
+      ];
     }
+
+    if (!s) return [];
+    return [
+      { icon: 'assignment', label: 'Total Retours', value: s.totalRetours, bg: 'rgba(13,148,136,0.1)', color: '#0d9488' },
+      { icon: 'hourglass_empty', label: 'En Attente', value: s.retoursEnAttente, bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', badge: s.retoursEnAttente > 0 ? '\u00c0 traiter' : null, badgeBg: 'rgba(245,158,11,0.1)', badgeColor: '#f59e0b' },
+      { icon: 'check_circle', label: 'Taux de R\u00e9solution', value: Math.round(s.tauxResolution * 10) / 10, suffix: '%', bg: 'rgba(34,197,94,0.1)', color: '#22c55e' },
+      { icon: 'report_problem', label: 'Non-Conformit\u00e9s', value: s.totalNonConformites, bg: 'rgba(239,68,68,0.1)', color: '#ef4444', badge: s.nonConformitesCritiques > 0 ? s.nonConformitesCritiques + ' critiques' : null, badgeBg: 'rgba(239,68,68,0.1)', badgeColor: '#ef4444' }
+    ];
+  });
+
+  summaryItems = computed(() => {
+    const retours = this.allRetours();
+    if (retours.length === 0) return [];
+    return [
+      { label: 'En Attente', value: retours.filter(r => r.etatTraitement === EtatTraitement.EN_ATTENTE).length, color: '#f59e0b' },
+      { label: 'En Cours', value: retours.filter(r => r.etatTraitement === EtatTraitement.EN_COURS).length, color: '#3b82f6' },
+      { label: 'Valid\u00e9s', value: retours.filter(r => r.etatTraitement === EtatTraitement.VALIDE).length, color: '#0d9488' },
+      { label: 'Trait\u00e9s', value: retours.filter(r => r.etatTraitement === EtatTraitement.TRAITE).length, color: '#22c55e' },
+      { label: 'Rejet\u00e9s', value: retours.filter(r => r.etatTraitement === EtatTraitement.REJETE).length, color: '#ef4444' }
+    ];
+  });
+
+  // Charts
+  doughnutData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 6 }] };
+  doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12 } } } }
   };
 
-  barData: ChartData<'bar'> = {
-    labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
-    datasets: [{
-      label: 'Retours',
-      data: [0, 0, 0, 0, 0],
-      backgroundColor: ['rgba(217,119,6,0.8)', 'rgba(8,145,178,0.8)', 'rgba(5,150,105,0.8)', 'rgba(37,99,235,0.8)', 'rgba(220,38,38,0.8)'],
-      borderRadius: 6,
-      borderSkipped: false
-    }]
-  };
-
-  barOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
+  causeData: ChartData<'bar'> = { labels: [], datasets: [{ label: 'Retours', data: [], backgroundColor: [], borderRadius: 6, borderSkipped: false }] };
+  causeOptions: ChartConfiguration['options'] = {
+    responsive: true, maintainAspectRatio: false, indexAxis: 'y' as const,
     plugins: { legend: { display: false } },
     scales: {
-      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } },
-      x: { grid: { display: false } }
+      x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
     }
   };
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private retourService: RetourService,
+    private authService: AuthService
+  ) {
+    this.isEmploye = !this.authService.isQualite();
+    this.userName = this.authService.getCurrentUser()?.nom || '';
+  }
 
   ngOnInit(): void {
-    this.loadStats();
-    this.refreshInterval = setInterval(() => this.loadStats(), 60000);
+    this.loadData();
+    this.refreshInterval = setInterval(() => this.loadData(), 60000);
   }
 
   ngOnDestroy(): void {
     if (this.refreshInterval) clearInterval(this.refreshInterval);
   }
 
-  loadStats(): void {
-    this.dashboardService.getStats().subscribe({
-      next: (data) => {
-        this.stats.set(data);
-        this.updateCharts(data);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false)
-    });
+  loadData(): void {
+    this.loading.set(true);
+    if (this.isEmploye) {
+      this.retourService.getAll().subscribe({
+        next: (retours) => {
+          this.allRetours.set(retours);
+          this.updateDoughnutFromRetours(retours);
+          this.updateCauseChart(retours);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+    } else {
+      this.dashboardService.getStats().subscribe({
+        next: (data) => {
+          this.stats.set(data);
+          this.updateDoughnutFromStats(data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+      this.retourService.getAll().subscribe({
+        next: (retours) => {
+          this.allRetours.set(retours);
+          this.updateCauseChart(retours);
+        },
+        error: () => {}
+      });
+    }
   }
 
-  updateCharts(data: DashboardStats): void {
-    const values = [data.retoursEnAttente, data.retoursEnCours, data.retoursValides, data.retoursTraites, data.retoursRejetes];
-    this.doughnutData = { ...this.doughnutData, datasets: [{ ...this.doughnutData.datasets[0], data: values }] };
-    this.barData = { ...this.barData, datasets: [{ ...this.barData.datasets[0], data: values }] };
+  updateDoughnutFromStats(data: DashboardStats): void {
+    const colors = ['#f59e0b', '#3b82f6', '#0d9488', '#22c55e', '#ef4444'];
+    this.doughnutData = {
+      labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
+      datasets: [{ data: [data.retoursEnAttente, data.retoursEnCours, data.retoursValides, data.retoursTraites, data.retoursRejetes], backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }]
+    };
+  }
+
+  updateDoughnutFromRetours(retours: RetourProduit[]): void {
+    const colors = ['#f59e0b', '#3b82f6', '#0d9488', '#22c55e', '#ef4444'];
+    const counts = [
+      retours.filter(r => r.etatTraitement === EtatTraitement.EN_ATTENTE).length,
+      retours.filter(r => r.etatTraitement === EtatTraitement.EN_COURS).length,
+      retours.filter(r => r.etatTraitement === EtatTraitement.VALIDE).length,
+      retours.filter(r => r.etatTraitement === EtatTraitement.TRAITE).length,
+      retours.filter(r => r.etatTraitement === EtatTraitement.REJETE).length
+    ];
+    this.doughnutData = {
+      labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
+      datasets: [{ data: counts, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }]
+    };
+  }
+
+  updateCauseChart(retours: RetourProduit[]): void {
+    const causeCounts: Record<string, number> = {};
+    retours.forEach(r => {
+      const raison = r.raison || 'Non sp\u00e9cifi\u00e9';
+      causeCounts[raison] = (causeCounts[raison] || 0) + 1;
+    });
+    const sorted = Object.entries(causeCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const labels = sorted.map(([label]) => label.length > 28 ? label.substring(0, 28) + '\u2026' : label);
+    const data = sorted.map(([, count]) => count);
+    const shades = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4', '#0f766e', '#115e59', '#134e4a'];
+    const colors = sorted.map((_, i) => shades[i % shades.length]);
+    this.causeData = {
+      labels,
+      datasets: [{ label: 'Retours', data, backgroundColor: colors, borderRadius: 6, borderSkipped: false }]
+    };
   }
 }

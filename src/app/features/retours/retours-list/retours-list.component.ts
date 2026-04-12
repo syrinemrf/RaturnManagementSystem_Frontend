@@ -102,7 +102,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
                 <a mat-icon-button [routerLink]="['/retours', r.id]" matTooltip="Voir détails" color="primary">
                   <mat-icon>visibility</mat-icon>
                 </a>
-                <a mat-icon-button [routerLink]="['/retours', r.id]" matTooltip="Modifier" color="accent" *ngIf="authService.isQualite()">
+                <a mat-icon-button [routerLink]="['/retours', r.id, 'edit']" matTooltip="Modifier" color="accent" *ngIf="authService.isQualite()">
                   <mat-icon>edit</mat-icon>
                 </a>
                 <button mat-icon-button matTooltip="Supprimer" color="warn" *ngIf="authService.isAdmin()" (click)="deleteRetour(r)">

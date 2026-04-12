@@ -44,7 +44,7 @@ import { GraviteBadgeComponent } from '../../../shared/components/gravite-badge.
           <h1>Retour #{{ retour()!.id }} — {{ retour()!.produit }}</h1>
           <app-status-badge [etat]="retour()!.etatTraitement"></app-status-badge>
         </div>
-        <button mat-raised-button color="primary" [routerLink]="['/retours', retour()!.id]" *ngIf="authService.isQualite()">
+        <button mat-raised-button color="primary" [routerLink]="['/retours', retour()!.id, 'edit']" *ngIf="authService.isQualite()">
           <mat-icon>edit</mat-icon> Modifier
         </button>
       </div>

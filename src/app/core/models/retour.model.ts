@@ -32,3 +32,14 @@ export interface ChangerEtatRequest {
   employeId: number;
   commentaire?: string;
 }
+
+export const RAISONS_RETOUR: string[] = [
+  'Défaut de fabrication',
+  'Produit endommagé',
+  'Non conforme à la commande',
+  'Problème de qualité',
+  "Erreur d'expédition",
+  'Délai dépassé',
+  'Insatisfaction client',
+  'Autre'
+];

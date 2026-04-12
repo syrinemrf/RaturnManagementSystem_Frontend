@@ -23,7 +23,11 @@ import { AuthService } from '../../../core/services/auth.service';
         <div class="brand-panel-inner">
           <div class="logo-wrap">
             <div class="logo-box">
-              <mat-icon>verified_user</mat-icon>
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="12" fill="rgba(255,255,255,0.2)"/>
+                <path d="M20 9L29 13.5V20C29 25 25 29 20 31C15 29 11 25 11 20V13.5L20 9Z" fill="rgba(255,255,255,0.25)"/>
+                <path d="M15.5 20L18.5 23L24.5 16.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </div>
             <div class="logo-text">
               <span class="logo-name">QualiTrack</span>
@@ -116,7 +120,9 @@ import { AuthService } from '../../../core/services/auth.service';
 
     .brand-panel {
       flex: 0 0 52%; position: relative; overflow: hidden;
-      background: linear-gradient(145deg, #1d4ed8 0%, #2563eb 45%, #3b82f6 100%);
+      background: linear-gradient(145deg, #0f766e 0%, #0d9488 45%, #14b8a6 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 8s ease infinite;
       display: flex; align-items: center; justify-content: center; padding: 48px;
     }
     .brand-panel-inner { position: relative; z-index: 1; max-width: 440px; color: white; }
@@ -124,9 +130,8 @@ import { AuthService } from '../../../core/services/auth.service';
     .logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
     .logo-box {
       width: 48px; height: 48px; border-radius: 14px;
-      background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: center;
-      mat-icon { color: white; font-size: 26px; height: 26px; width: 26px; }
+      svg { width: 40px; height: 40px; }
     }
     .logo-text { display: flex; flex-direction: column; }
     .logo-name {
@@ -140,11 +145,15 @@ import { AuthService } from '../../../core/services/auth.service';
       font-size: 42px; font-weight: 800; line-height: 1.2;
       margin: 0 0 16px; color: white;
     }
-    .highlight { color: #93c5fd; }
+    .highlight { color: #5eead4; }
     .brand-sub { font-size: 15px; opacity: 0.85; line-height: 1.6; margin: 0 0 40px; }
 
     .feature-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 20px; }
-    .feature-item { display: flex; align-items: flex-start; gap: 14px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 14px; animation: fadeInLeft 0.5s ease both; }
+    .feature-item:nth-child(1) { animation-delay: 0.2s; }
+    .feature-item:nth-child(2) { animation-delay: 0.4s; }
+    .feature-item:nth-child(3) { animation-delay: 0.6s; }
+    @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     .feature-icon-wrap {
       width: 40px; height: 40px; border-radius: 10px;
       background: rgba(255,255,255,0.15);
@@ -155,8 +164,11 @@ import { AuthService } from '../../../core/services/auth.service';
     .feature-item p { margin: 0; font-size: 13px; opacity: 0.75; }
 
     .blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.06); pointer-events: none; }
-    .blob-1 { width: 400px; height: 400px; top: -120px; right: -100px; }
-    .blob-2 { width: 300px; height: 300px; bottom: -80px; left: -60px; }
+    .blob-1 { width: 400px; height: 400px; top: -120px; right: -100px; animation: float1 20s ease-in-out infinite; }
+    .blob-2 { width: 300px; height: 300px; bottom: -80px; left: -60px; animation: float2 15s ease-in-out infinite; }
+    @keyframes float1 { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(30px, -30px); } 66% { transform: translate(-20px, 20px); } }
+    @keyframes float2 { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(-20px, 20px); } 66% { transform: translate(30px, -30px); } }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
     .form-panel {
       flex: 1; display: flex; align-items: center; justify-content: center;
@@ -189,14 +201,14 @@ import { AuthService } from '../../../core/services/auth.service';
     .submit-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; height: 48px; border: none; border-radius: 12px; cursor: pointer;
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
       color: white; font-size: 15px; font-weight: 600;
       font-family: inherit; letter-spacing: 0.01em;
-      box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+      box-shadow: 0 6px 20px rgba(13,148,136,0.35);
       transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
       margin-top: 8px;
       mat-icon { font-size: 20px; height: 20px; width: 20px; }
-      &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,99,235,0.4); }
+      &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(13,148,136,0.4); }
       &:active:not(:disabled) { transform: translateY(0); }
       &:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
     }
@@ -247,7 +259,7 @@ export class LoginComponent {
   ];
 
   demoAccounts = [
-    { role: 'Admin', email: 'admin@retours.com', password: 'Admin123!', color: '#2563eb' },
+    { role: 'Admin', email: 'admin@retours.com', password: 'Admin123!', color: '#0d9488' },
     { role: 'Qualit\u00e9', email: 'qualite@retours.com', password: 'Qualite123!', color: '#059669' },
     { role: 'Employ\u00e9', email: 'employe@retours.com', password: 'Employe123!', color: '#d97706' }
   ];

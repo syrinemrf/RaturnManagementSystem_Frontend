@@ -13,6 +13,7 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'retours', loadComponent: () => import('./features/retours/retours-list/retours-list.component').then(m => m.RetoursListComponent) },
       { path: 'retours/nouveau', loadComponent: () => import('./features/retours/retour-form/retour-form.component').then(m => m.RetourFormComponent) },
+      { path: 'retours/:id/edit', loadComponent: () => import('./features/retours/retour-form/retour-form.component').then(m => m.RetourFormComponent) },
       { path: 'retours/:id', loadComponent: () => import('./features/retours/retour-detail/retour-detail.component').then(m => m.RetourDetailComponent) },
       { path: 'non-conformites', loadComponent: () => import('./features/non-conformites/non-conformites-list.component').then(m => m.NonConformitesListComponent), canActivate: [authGuard] },
       { path: 'utilisateurs', loadComponent: () => import('./features/utilisateurs/utilisateurs-list.component').then(m => m.UtilisateursListComponent), canActivate: [roleGuard], data: { role: 'ROLE_ADMIN' } },

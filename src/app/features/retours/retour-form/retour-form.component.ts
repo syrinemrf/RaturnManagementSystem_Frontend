@@ -14,7 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { RetourService } from '../../../core/services/retour.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { RetourProduit, EtatTraitement, RetourRequest, ChangerEtatRequest } from '../../../core/models/retour.model';
+import { RetourProduit, EtatTraitement, RetourRequest, ChangerEtatRequest, RAISONS_RETOUR } from '../../../core/models/retour.model';
 
 @Component({
   selector: 'app-retour-form',
@@ -57,9 +57,16 @@ import { RetourProduit, EtatTraitement, RetourRequest, ChangerEtatRequest } from
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-col">
-              <mat-label>Raison *</mat-label>
-              <input matInput formControlName="raison" placeholder="Motif du retour">
+              <mat-label>Raison du retour *</mat-label>
+              <mat-select formControlName="raison">
+                <mat-option *ngFor="let r of raisons" [value]="r">{{ r }}</mat-option>
+              </mat-select>
               <mat-error *ngIf="retourForm.get('raison')?.hasError('required')">Raison requise</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-col" *ngIf="retourForm.get('raison')?.value === 'Autre'">
+              <mat-label>Précisez la raison *</mat-label>
+              <input matInput formControlName="raisonAutre" placeholder="Précisez le motif du retour">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-col">
@@ -130,6 +137,8 @@ export class RetourFormComponent implements OnInit {
   saving = signal(false);
   changingEtat = signal(false);
 
+  raisons = RAISONS_RETOUR;
+
   etats = [
     { value: EtatTraitement.EN_ATTENTE, label: 'En Attente' },
     { value: EtatTraitement.EN_COURS, label: 'En Cours' },
@@ -150,6 +159,7 @@ export class RetourFormComponent implements OnInit {
       produit: ['', Validators.required],
       client: ['', Validators.required],
       raison: ['', Validators.required],
+      raisonAutre: [''],
       description: ['']
     });
 
@@ -172,7 +182,8 @@ export class RetourFormComponent implements OnInit {
     this.loadingData.set(true);
     this.retourService.getById(id).subscribe({
       next: (r) => {
-        this.retourForm.patchValue({ produit: r.produit, client: r.client, raison: r.raison, description: r.description });
+        const isPredefined = RAISONS_RETOUR.includes(r.raison);
+        this.retourForm.patchValue({ produit: r.produit, client: r.client, raison: isPredefined ? r.raison : 'Autre', raisonAutre: isPredefined ? '' : r.raison, description: r.description });
         this.loadingData.set(false);
       },
       error: () => {
@@ -186,8 +197,10 @@ export class RetourFormComponent implements OnInit {
   onSubmit(): void {
     if (this.retourForm.invalid) return;
     this.saving.set(true);
-    const user = this.authService.getCurrentUser();
-    const req: RetourRequest = { ...this.retourForm.value, utilisateurId: user ? undefined : undefined };
+    const fv = this.retourForm.value;
+    const raison = fv.raison === 'Autre' ? (fv.raisonAutre || '').trim() : fv.raison;
+    if (!raison) { this.snackBar.open('Veuillez pr\u00e9ciser la raison', 'Fermer', { duration: 3000 }); this.saving.set(false); return; }
+    const req: RetourRequest = { produit: fv.produit, client: fv.client, raison, description: fv.description };
 
     const obs = this.isEditMode()
       ? this.retourService.update(this.retourId()!, req)
