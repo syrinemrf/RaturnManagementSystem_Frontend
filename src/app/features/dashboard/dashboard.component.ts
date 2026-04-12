@@ -644,7 +644,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.loading.set(true);
 
-    // Always fetch retours and NC
+    // Single getAll() call used for both charts and product-issues panel
     this.retourService.getAll().subscribe({
       next: (retours) => {
         this.allRetours.set(retours);
@@ -652,24 +652,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.updateDoughnutFromRetours(retours);
         }
         this.updateCauseChart(retours);
+        if (this.isEmploye) {
+          this.loading.set(false);
+        }
       },
-      error: () => {}
+      error: () => this.loading.set(false)
     });
 
-    // Fetch NC for the product issues panel
     if (!this.isEmploye) {
+      // Fetch NC for the product issues panel
       this.ncService.getAll().subscribe({
         next: (ncs) => this.allNc.set(ncs),
         error: () => {}
       });
-    }
 
-    if (this.isEmploye) {
-      this.retourService.getAll().subscribe({
-        next: () => this.loading.set(false),
-        error: () => this.loading.set(false)
-      });
-    } else {
       this.dashboardService.getStats().subscribe({
         next: (data) => {
           this.stats.set(data);

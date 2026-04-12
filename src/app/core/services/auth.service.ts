@@ -37,7 +37,18 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return false;
+    try {
+      // Decode the payload (middle part of the JWT) — no library needed
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // exp is in seconds, Date.now() in milliseconds
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      // Malformed token — treat as not logged in
+      this.logout();
+      return false;
+    }
   }
 
   getToken(): string | null {
