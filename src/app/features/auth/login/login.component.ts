@@ -25,8 +25,9 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="logo-box">
               <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="40" height="40" rx="12" fill="rgba(255,255,255,0.2)"/>
-                <path d="M20 9L29 13.5V20C29 25 25 29 20 31C15 29 11 25 11 20V13.5L20 9Z" fill="rgba(255,255,255,0.25)"/>
-                <path d="M15.5 20L18.5 23L24.5 16.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="20" cy="20" r="12" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="2.5 3.5"/>
+                <path d="M26 16.5A7.5 7.5 0 1 1 15 13.5" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+                <path d="M15 9.5L15 14L19 13.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
               </svg>
             </div>
             <div class="logo-text">
@@ -100,11 +101,12 @@ import { AuthService } from '../../../core/services/auth.service';
           </form>
 
           <div class="demo-box">
-            <p class="demo-title">
-              <mat-icon>info_outline</mat-icon>
-              Comptes de d&#233;monstration
-            </p>
-            <div class="demo-accounts">
+            <button class="demo-toggle" (click)="showDemo.set(!showDemo())" type="button">
+              <mat-icon>{{ showDemo() ? 'visibility_off' : 'science' }}</mat-icon>
+              <span>{{ showDemo() ? 'Masquer les comptes démo' : 'Comptes de démonstration' }}</span>
+              <mat-icon class="toggle-chevron" [class.open]="showDemo()">expand_more</mat-icon>
+            </button>
+            <div class="demo-accounts" *ngIf="showDemo()">
               <div class="demo-account" *ngFor="let d of demoAccounts" (click)="fillDemo(d)">
                 <div class="demo-role-badge" [style.background]="d.color">{{ d.role }}</div>
                 <code>{{ d.email }}</code>
@@ -217,14 +219,21 @@ import { AuthService } from '../../../core/services/auth.service';
 
     .demo-box {
       margin-top: 28px; background: var(--surface);
-      border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
     }
-    .demo-title {
-      display: flex; align-items: center; gap: 6px;
-      margin: 0 0 12px; font-size: 12px; font-weight: 600;
+    .demo-toggle {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      padding: 14px 16px; border: none; background: transparent;
+      cursor: pointer; font-size: 12px; font-weight: 600;
       color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em;
+      font-family: inherit; transition: background 0.15s ease;
       mat-icon { font-size: 14px; height: 14px; width: 14px; }
+      span { flex: 1; text-align: left; }
+      &:hover { background: var(--surface-hover); }
     }
+    .toggle-chevron { transition: transform 0.25s ease; }
+    .toggle-chevron.open { transform: rotate(180deg); }
+    .demo-accounts { padding: 0 16px 16px; }
     .demo-accounts { display: flex; flex-direction: column; gap: 8px; }
     .demo-account {
       display: flex; align-items: center; gap: 10px;
@@ -250,6 +259,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = signal(false);
   showPassword = signal(false);
+  showDemo = signal(false);
   errorMessage = signal('');
 
   features = [

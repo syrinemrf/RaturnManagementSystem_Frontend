@@ -20,8 +20,9 @@ import { ThemeService } from '../../core/services/theme.service';
         <svg class="brand-icon-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="36" height="36" rx="10" fill="url(#qt-grad)"/>
           <defs><linearGradient id="qt-grad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop stop-color="#14b8a6"/><stop offset="1" stop-color="#0f766e"/></linearGradient></defs>
-          <path d="M18 8L27 12.5V19C27 24 23 28 18 30C13 28 9 24 9 19V12.5L18 8Z" fill="rgba(255,255,255,0.2)"/>
-          <path d="M13.5 18.5L16.5 21.5L22.5 15.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="18" cy="18" r="11" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-dasharray="2 3"/>
+          <path d="M23.5 15A7 7 0 1 1 13.5 12.5" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <path d="M13.5 8.5L13.5 13L17.5 12.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
         <div class="brand-text">
           <span class="brand-name">QualiTrack</span>

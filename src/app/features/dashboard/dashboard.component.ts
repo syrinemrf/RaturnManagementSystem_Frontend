@@ -148,6 +148,30 @@ interface KpiCard {
         </mat-card>
       </div>
 
+      <!-- Top Defective Products -->
+      <mat-card class="defect-card animate-fade-up" *ngIf="topDefectProducts().length > 0">
+        <mat-card-header>
+          <mat-card-title class="card-title">
+            <mat-icon class="card-title-icon">precision_manufacturing</mat-icon>
+            Produits avec le plus de défauts de fabrication
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="defect-grid">
+            <div class="defect-item" *ngFor="let p of topDefectProducts(); let i = index">
+              <div class="defect-rank" [class.rank-1]="i === 0" [class.rank-2]="i === 1" [class.rank-3]="i === 2">{{ i + 1 }}</div>
+              <div class="defect-info">
+                <span class="defect-name">{{ p.name }}</span>
+                <span class="defect-bar-track">
+                  <span class="defect-bar-fill" [style.width.%]="p.pct"></span>
+                </span>
+              </div>
+              <span class="defect-count">{{ p.count }} retour{{ p.count > 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <!-- Bottom Row -->
       <div class="bottom-grid">
         <mat-card class="recent-card animate-fade-up">
@@ -404,6 +428,26 @@ interface KpiCard {
 
     /* Summary card (employee) */
     .summary-list { display: flex; flex-direction: column; }
+
+    /* Defect Products */
+    .defect-card { margin-bottom: 24px; }
+    .defect-grid { display: flex; flex-direction: column; gap: 12px; }
+    .defect-item { display: flex; align-items: center; gap: 14px; }
+    .defect-rank {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--text-muted);
+      background: var(--surface-raised); border: 1px solid var(--border);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .defect-rank.rank-1 { background: #0d9488; color: white; border-color: #0d9488; }
+    .defect-rank.rank-2 { background: #14b8a6; color: white; border-color: #14b8a6; }
+    .defect-rank.rank-3 { background: #2dd4bf; color: #0f766e; border-color: #2dd4bf; }
+    .defect-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .defect-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .defect-bar-track { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+    .defect-bar-fill { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0d9488, #14b8a6); transition: width 0.6s ease; }
+    .defect-count { font-size: 13px; font-weight: 700; color: var(--text-secondary); white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif; }
     .summary-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 0; border-bottom: 1px solid var(--border);
@@ -489,6 +533,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
   });
 
+  topDefectProducts = computed(() => {
+    const retours = this.allRetours();
+    const defects = retours.filter(r => r.raison === 'D\u00e9faut de fabrication');
+    if (defects.length === 0) return [];
+    const counts: Record<string, number> = {};
+    defects.forEach(r => { counts[r.produit] = (counts[r.produit] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const max = sorted[0][1];
+    return sorted.map(([name, count]) => ({ name, count, pct: Math.round((count / max) * 100) }));
+  });
+
   // Charts
   doughnutData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0, hoverOffset: 6 }] };
   doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
@@ -556,7 +611,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateDoughnutFromStats(data: DashboardStats): void {
-    const colors = ['#f59e0b', '#3b82f6', '#0d9488', '#22c55e', '#ef4444'];
+    const colors = ['#14b8a6', '#0d9488', '#0f766e', '#2dd4bf', '#115e59'];
     this.doughnutData = {
       labels: ['En Attente', 'En Cours', 'Valid\u00e9', 'Trait\u00e9', 'Rejet\u00e9'],
       datasets: [{ data: [data.retoursEnAttente, data.retoursEnCours, data.retoursValides, data.retoursTraites, data.retoursRejetes], backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }]
@@ -564,7 +619,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateDoughnutFromRetours(retours: RetourProduit[]): void {
-    const colors = ['#f59e0b', '#3b82f6', '#0d9488', '#22c55e', '#ef4444'];
+    const colors = ['#14b8a6', '#0d9488', '#0f766e', '#2dd4bf', '#115e59'];
     const counts = [
       retours.filter(r => r.etatTraitement === EtatTraitement.EN_ATTENTE).length,
       retours.filter(r => r.etatTraitement === EtatTraitement.EN_COURS).length,
