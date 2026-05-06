@@ -355,7 +355,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!s || this.isEmploye) return [];
     const list: Alert[] = [];
     if (s.nonConformitesCritiques > 0)
-      list.push({ type: 'danger', icon: 'error', message: `${s.nonConformitesCritiques} NC critique${s.nonConformitesCritiques > 1 ? 's' : ''} â€” action imm\u00e9diate requise`, link: '/non-conformites' });
+      list.push({ type: 'danger', icon: 'error', message: `${s.nonConformitesCritiques} NC critique${s.nonConformitesCritiques > 1 ? 's' : ''} ” action imm\u00e9diate requise`, link: '/non-conformites' });
     if (s.nonConformitesHautes > 0)
       list.push({ type: 'warning', icon: 'warning', message: `${s.nonConformitesHautes} non-conformit\u00e9${s.nonConformitesHautes > 1 ? 's' : ''} de gravit\u00e9 haute`, link: '/non-conformites' });
     if (s.retoursEnAttente > 3)
