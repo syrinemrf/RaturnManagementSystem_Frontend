@@ -16,7 +16,8 @@ export class ThemeService {
   private loadTheme(): boolean {
     const stored = localStorage.getItem(this.THEME_KEY);
     if (stored) return stored === 'dark';
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    // Par defaut on demarre en mode clair
+    return false;
   }
 
   toggle(): void {
