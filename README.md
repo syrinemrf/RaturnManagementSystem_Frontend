@@ -1,27 +1,118 @@
-# Frontend
+# Return Management System — Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+A professional Angular web application for managing product returns, non-conformities, and quality tracking. Built with Angular 17, Angular Material, and Chart.js.
 
-## Development server
+## Live Demo
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+**[https://gestion-retours-frontend-176480887870.europe-west1.run.app](https://gestion-retours-frontend-176480887870.europe-west1.run.app)**
 
-## Code scaffolding
+> Deployed on Google Cloud Run.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+---
 
-## Build
+## Features
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- **Authentication** — JWT-based login with role-based access control (ADMIN, QUALITE, EMPLOYE)
+- **Return Management** — Create, view, update, and track product returns through their full lifecycle
+- **Non-Conformity Tracking** — Log and manage quality non-conformities with severity levels
+- **Dashboard** — Real-time statistics and charts powered by Chart.js
+- **Audit History** — Full traceability of all state changes per return
+- **User Management** — Admin panel to manage user accounts and roles
+- **Responsive UI** — Built with Angular Material for a clean, professional interface
+- **Dark / Light Theme** — User-selectable theme
 
-## Running unit tests
+---
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Tech Stack
 
-## Running end-to-end tests
+| Technology | Version | Purpose |
+|---|---|---|
+| Angular | 17 | Frontend framework |
+| Angular Material | 17 | UI component library |
+| Chart.js / ng2-charts | 4 / 5 | Data visualization |
+| TypeScript | 5.4 | Programming language |
+| RxJS | 7.8 | Reactive programming |
+| nginx | alpine | Production web server |
+| Docker | latest | Containerization |
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+---
 
-## Further help
+## Prerequisites
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- Node.js 20+
+- npm 9+
+- Angular CLI 17: `npm install -g @angular/cli@17`
+
+---
+
+## Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/syrinemrf/RaturnManagementSystem_Frontend.git
+cd RaturnManagementSystem_Frontend
+
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Start the development server
+ng serve
+```
+
+The app will be available at **http://localhost:4200**.
+
+> By default, the frontend connects to the backend API at `http://localhost:8080`. Update `src/environments/environment.ts` if your backend runs on a different URL.
+
+---
+
+## Default Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| ADMIN | admin@retours.com | Admin123! |
+| QUALITE | qualite@retours.com | Qualite123! |
+| EMPLOYE | employe@retours.com | Employe123! |
+
+---
+
+## Build for Production
+
+```bash
+ng build --configuration production
+```
+
+Build output will be in `dist/frontend/browser/`.
+
+---
+
+## Run with Docker
+
+```bash
+# Build the image
+docker build -t return-management-frontend .
+
+# Run the container
+docker run -p 80:8080 -e BACKEND_URL=http://your-backend-url return-management-frontend
+```
+
+The app will be available at **http://localhost**.
+
+---
+
+## Environment Variables (Docker)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `BACKEND_URL` | Backend API base URL | `http://localhost:8080` |
+
+---
+
+## Related Repository
+
+- **Backend API:** [ReturnManagementSystem_Backend](https://github.com/syrinemrf/ReturnManagementSystem_Backend)
+
+---
+
+## License
+
+MIT License
