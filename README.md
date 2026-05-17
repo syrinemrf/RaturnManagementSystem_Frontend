@@ -1,27 +1,33 @@
-# Return Management System — Frontend
+﻿# Return Management System: Frontend
 
-A professional Angular web application for managing product returns, non-conformities, and quality tracking. Built with Angular 17, Angular Material, and Chart.js.
+A web application for managing product returns, non-conformities, and quality tracking. Built with Angular 17 and Angular Material.
 
 ## Live Demo
 
 **[https://gestion-retours-frontend-176480887870.europe-west1.run.app](https://gestion-retours-frontend-176480887870.europe-west1.run.app)**
 
-> Deployed on Google Cloud Run.
-
----
+Deployed on Google Cloud Run.
 
 ## Features
 
-- **Authentication** — JWT-based login with role-based access control (ADMIN, QUALITE, EMPLOYE)
-- **Return Management** — Create, view, update, and track product returns through their full lifecycle
-- **Non-Conformity Tracking** — Log and manage quality non-conformities with severity levels
-- **Dashboard** — Real-time statistics and charts powered by Chart.js
-- **Audit History** — Full traceability of all state changes per return
-- **User Management** — Admin panel to manage user accounts and roles
-- **Responsive UI** — Built with Angular Material for a clean, professional interface
-- **Dark / Light Theme** — User-selectable theme
+- JWT-based authentication with role-based access control
+- Product return lifecycle management (from submission to final decision)
+- Non-conformity tracking with severity classification
+- Real-time dashboard with charts powered by Chart.js
+- Full audit history for every return
+- User account management (admin only)
+- Responsive interface built with Angular Material
+- Dark and light theme support
 
----
+## Role-Based Access
+
+The application enforces three roles with different levels of access:
+
+| Role | Access |
+|------|--------|
+| **ADMIN** | Full access: manage users, returns, non-conformities, and delete any record |
+| **QUALITE** | Manage returns (update state), create and manage non-conformities, view dashboard |
+| **EMPLOYE** | Submit returns and view data; cannot change states or manage non-conformities |
 
 ## Tech Stack
 
@@ -35,15 +41,11 @@ A professional Angular web application for managing product returns, non-conform
 | nginx | alpine | Production web server |
 | Docker | latest | Containerization |
 
----
-
 ## Prerequisites
 
 - Node.js 20+
 - npm 9+
 - Angular CLI 17: `npm install -g @angular/cli@17`
-
----
 
 ## Getting Started
 
@@ -61,9 +63,7 @@ ng serve
 
 The app will be available at **http://localhost:4200**.
 
-> By default, the frontend connects to the backend API at `http://localhost:8080`. Update `src/environments/environment.ts` if your backend runs on a different URL.
-
----
+By default, the frontend connects to the backend API at `http://localhost:8080`. Update `src/environments/environment.ts` if your backend runs on a different URL.
 
 ## Default Credentials
 
@@ -73,8 +73,6 @@ The app will be available at **http://localhost:4200**.
 | QUALITE | qualite@retours.com | Qualite123! |
 | EMPLOYE | employe@retours.com | Employe123! |
 
----
-
 ## Build for Production
 
 ```bash
@@ -82,8 +80,6 @@ ng build --configuration production
 ```
 
 Build output will be in `dist/frontend/browser/`.
-
----
 
 ## Run with Docker
 
@@ -97,21 +93,15 @@ docker run -p 80:8080 -e BACKEND_URL=http://your-backend-url return-management-f
 
 The app will be available at **http://localhost**.
 
----
-
 ## Environment Variables (Docker)
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `BACKEND_URL` | Backend API base URL | `http://localhost:8080` |
 
----
-
 ## Related Repository
 
-- **Backend API:** [ReturnManagementSystem_Backend](https://github.com/syrinemrf/ReturnManagementSystem_Backend)
-
----
+Backend API: [ReturnManagementSystem_Backend](https://github.com/syrinemrf/ReturnManagementSystem_Backend)
 
 ## License
 
